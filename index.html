@@ -1,0 +1,2483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AWS Cloud Survival</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Exo+2:wght@300;400;600;700;800&display=swap');
+:root{
+  --o:#FF9900;--dark:#060c18;--panel:#0a1220;--panel2:#0c1628;
+  --border:#1a3050;--blue:#1a9bd6;--green:#3ddc84;--red:#e74c3c;
+  --yellow:#f0c040;--purple:#9b59b6;--cyan:#00d4ff;--teal:#1abc9c;
+  --text:#b8cfe0;--dim:#3a5070;--pw:250px;--bh:150px;--rp:270px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--dark);color:var(--text);font-family:'Exo 2',sans-serif;font-size:13px;overflow:hidden;height:100vh;width:100vw;user-select:none}
+
+/* SCROLLBARS */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+
+/* TOP BAR */
+#topbar{position:fixed;top:0;left:0;right:0;height:46px;background:linear-gradient(90deg,#060c18,#0a1830);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px;padding:0 10px;z-index:50}
+.logo-wrap{display:flex;align-items:center;gap:8px;margin-right:6px}
+.logo-icon{font-size:22px;line-height:1}
+.logo-text{font-family:'Share Tech Mono',monospace;font-size:14px;color:var(--o);letter-spacing:1px;white-space:nowrap}
+.logo-text span{color:#fff}
+.chip{background:#0c1828;border:1px solid var(--border);border-radius:4px;padding:3px 9px;display:flex;flex-direction:column;align-items:center;min-width:72px}
+.chip .cl{color:var(--dim);font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase}
+.chip .cv{font-family:'Share Tech Mono',monospace;font-size:13px;color:var(--o);font-weight:bold;line-height:1.2}
+.chip .cv.g{color:var(--green)}.chip .cv.r{color:var(--red)}.chip .cv.b{color:var(--blue)}.chip .cv.y{color:var(--yellow)}
+.flex1{flex:1}
+.tbtn{background:#0f1e30;border:1px solid var(--border);color:var(--text);border-radius:4px;padding:4px 11px;font-family:'Exo 2',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap}
+.tbtn:hover{background:var(--border);color:#fff}
+.tbtn.act{background:var(--o);color:#000;border-color:var(--o)}
+#wave-bar{height:4px;background:#0a1020;position:relative;overflow:hidden}
+#wave-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--cyan));transition:width .3s;width:0%}
+
+/* LEFT PANEL */
+#lpanel{position:fixed;top:50px;left:0;bottom:var(--bh);width:var(--pw);background:var(--panel);border-right:1px solid var(--border);overflow-y:auto;z-index:40;display:flex;flex-direction:column}
+.psec{border-bottom:1px solid var(--border);padding:9px 10px}
+.ptitle{font-size:9px;font-weight:800;letter-spacing:2px;color:var(--dim);text-transform:uppercase;margin-bottom:7px;display:flex;justify-content:space-between;align-items:center}
+.ptitle-btn{font-size:10px;color:var(--blue);cursor:pointer;letter-spacing:0;text-transform:none;font-weight:600}
+.ptitle-btn:hover{color:var(--o)}
+.rep-bg{background:#050d18;border-radius:3px;height:9px;overflow:hidden;margin-top:3px}
+.rep-fill{height:100%;border-radius:3px;transition:width .4s,background .4s}
+.trow{display:flex;flex-wrap:wrap;gap:3px;margin-top:5px}
+.tbadge{font-family:'Share Tech Mono',monospace;font-size:10px;padding:2px 5px;border-radius:3px;border:1px solid;white-space:nowrap}
+.ftable{width:100%;border-collapse:collapse;font-size:11px}
+.ftable th{color:var(--dim);font-weight:700;text-align:left;padding:2px 3px;font-size:9px;letter-spacing:1px;text-transform:uppercase}
+.ftable td{padding:2px 3px}
+.ftable .fc{color:var(--red);font-family:'Share Tech Mono',monospace;font-size:11px}
+.hitem{display:flex;align-items:center;gap:5px;font-size:11px;margin-bottom:3px}
+.hbg{flex:1;background:#050d18;border-radius:2px;height:5px;overflow:hidden}
+.hfill{height:100%;border-radius:2px;transition:width .3s,background .3s}
+.frow{display:flex;justify-content:space-between;font-size:11px;padding:2px 0;border-bottom:1px solid #0d1a28}
+.frow .fv{font-family:'Share Tech Mono',monospace}
+.frow .pos{color:var(--green)}.frow .neg{color:var(--red)}.frow .neu{color:var(--o)}
+/* wave & milestone */
+.wave-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.wave-num{font-family:'Share Tech Mono',monospace;font-size:22px;color:var(--o);line-height:1}
+.wave-desc{font-size:11px;color:var(--dim);text-align:right;line-height:1.4}
+/* achievements */
+.ach-item{display:flex;align-items:center;gap:6px;padding:3px 0;border-bottom:1px solid #0d1a28;font-size:11px}
+.ach-icon{font-size:14px;opacity:.4}
+.ach-item.unlocked .ach-icon{opacity:1}
+.ach-item.unlocked .ach-name{color:var(--yellow)}
+.ach-name{color:var(--dim)}
+/* region badges */
+.region-badge{display:inline-flex;align-items:center;gap:4px;background:#0c1628;border:1px solid var(--border);border-radius:3px;padding:2px 7px;font-size:10px;margin:2px;cursor:pointer;transition:all .15s}
+.region-badge.active{border-color:var(--o);color:var(--o)}
+.region-badge:hover{border-color:var(--blue)}
+
+/* CANVAS */
+#cwrap{position:fixed;top:50px;left:var(--pw);right:var(--rp);bottom:var(--bh);background:radial-gradient(ellipse at 50% 40%,#0c1e3a 0%,#060c18 100%);overflow:hidden;cursor:default}
+#cwrap::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(26,48,80,.14) 1px,transparent 1px),linear-gradient(90deg,rgba(26,48,80,.14) 1px,transparent 1px);background-size:48px 48px;pointer-events:none}
+#gc{display:block}
+
+/* RIGHT PANEL */
+#rpanel{position:fixed;top:50px;right:0;bottom:var(--bh);width:var(--rp);background:var(--panel);border-left:1px solid var(--border);overflow-y:auto;z-index:40;display:flex;flex-direction:column}
+
+/* BOTTOM BAR */
+#bbar{position:fixed;bottom:0;left:0;right:0;height:var(--bh);background:var(--panel2);border-top:1px solid var(--border);display:flex;z-index:40}
+#toolstrip{display:flex;flex-direction:column;justify-content:center;gap:4px;padding:8px;border-right:1px solid var(--border);min-width:88px}
+.tbtn2{background:#0c1828;border:1px solid var(--border);color:var(--text);border-radius:4px;padding:5px 6px;font-family:'Exo 2',sans-serif;font-size:11px;font-weight:700;cursor:pointer;text-align:center;transition:all .15s}
+.tbtn2:hover{background:var(--border)}
+.tbtn2.act{background:var(--o);color:#000;border-color:var(--o)}
+.tbtn2.ract.act{background:var(--red);color:#fff;border-color:var(--red)}
+#palette-wrap{flex:1;display:flex;flex-direction:column;overflow:hidden}
+#cat-tabs{display:flex;gap:2px;padding:5px 8px 0;border-bottom:1px solid var(--border);overflow-x:auto}
+.cat-tab{background:transparent;border:none;border-bottom:2px solid transparent;color:var(--dim);font-family:'Exo 2',sans-serif;font-size:11px;font-weight:700;padding:3px 10px;cursor:pointer;white-space:nowrap;transition:all .15s;text-transform:uppercase;letter-spacing:.5px}
+.cat-tab:hover{color:var(--text)}
+.cat-tab.act{color:var(--o);border-bottom-color:var(--o)}
+#svc-palette{flex:1;display:flex;align-items:center;gap:5px;padding:5px 8px;overflow-x:auto}
+.scard{background:#0c1828;border:1px solid var(--border);border-radius:6px;padding:6px 7px;min-width:82px;max-width:90px;text-align:center;cursor:pointer;transition:all .15s;flex-shrink:0;position:relative}
+.scard:hover{border-color:var(--blue);transform:translateY(-2px);background:#0f1e36}
+.scard.sel{border-color:var(--o);background:#1a1a08}
+.scard.locked{opacity:.4;cursor:not-allowed}
+.scard .si{font-size:19px;line-height:1;margin-bottom:2px}
+.scard .sn{font-size:9px;font-weight:700;color:#fff;line-height:1.2}
+.scard .sc{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--o);margin-top:2px}
+.scard .su{font-size:8px;color:var(--dim)}
+.scard .slvl{position:absolute;top:3px;right:4px;font-size:8px;color:var(--yellow);font-weight:700}
+.scard .stag{position:absolute;top:3px;left:4px;font-size:7px;background:var(--blue);color:#000;border-radius:2px;padding:0 3px;font-weight:700}
+
+/* MODALS */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:100;display:flex;align-items:center;justify-content:center}
+.modal{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:28px 32px;max-width:460px;width:92%;text-align:center;position:relative}
+.modal h1{font-size:26px;font-weight:800;color:var(--o);margin-bottom:4px}
+.modal h2{font-size:17px;color:#fff;margin-bottom:14px;font-weight:600}
+.modal p{color:var(--dim);margin-bottom:16px;font-size:13px;line-height:1.6}
+.mbtn{display:block;width:100%;background:var(--o);color:#000;border:none;border-radius:7px;padding:11px;font-family:'Exo 2',sans-serif;font-size:14px;font-weight:800;cursor:pointer;margin-bottom:9px;transition:opacity .15s}
+.mbtn:hover{opacity:.88}
+.mbtn.sec{background:#0f1e30;color:var(--text);border:1px solid var(--border)}
+.mbtn.sec:hover{background:var(--border)}
+.mbtn.grn{background:var(--green);color:#000}
+.mbtn.red{background:var(--red);color:#fff}
+/* difficulty picker */
+.diff-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
+.diff-card{background:#0c1828;border:2px solid var(--border);border-radius:8px;padding:12px;cursor:pointer;transition:all .2s;text-align:left}
+.diff-card:hover{border-color:var(--blue);background:#0f1e36}
+.diff-card.sel{border-color:var(--o)}
+.diff-card .dn{font-size:13px;font-weight:800;color:var(--o);margin-bottom:3px}
+.diff-card .dd{font-size:10px;color:var(--dim);line-height:1.5}
+/* info panel */
+#infopanel{position:fixed;bottom:calc(var(--bh) + 10px);right:calc(var(--rp) + 10px);background:#0a1628ee;border:1px solid var(--border);border-radius:8px;padding:10px 13px;max-width:230px;font-size:11px;z-index:60;pointer-events:none;display:none;backdrop-filter:blur(6px)}
+#infopanel .iname{color:var(--o);font-weight:800;font-size:13px;margin-bottom:5px}
+#infopanel .irow{display:flex;justify-content:space-between;gap:10px;margin-bottom:3px}
+#infopanel .il{color:var(--dim)}
+#infopanel .iv{color:#fff;font-family:'Share Tech Mono',monospace}
+#infopanel .idesc{color:var(--dim);font-size:10px;margin-top:5px;line-height:1.5;border-top:1px solid var(--border);padding-top:5px}
+/* event banner */
+#evbanner{position:fixed;top:58px;left:50%;transform:translateX(-50%);background:#1a0800;border:1px solid var(--o);border-radius:6px;padding:5px 16px;font-size:13px;font-weight:700;color:var(--o);z-index:62;display:none;white-space:nowrap;pointer-events:none}
+/* toast */
+#toast{position:fixed;bottom:calc(var(--bh)+12px);left:50%;transform:translateX(-50%);background:#0a1628;border:1px solid var(--green);border-radius:6px;padding:6px 16px;color:var(--green);font-size:12px;font-weight:700;z-index:65;display:none;pointer-events:none}
+/* mode chip */
+#modechip{position:fixed;top:58px;left:calc(var(--pw)+10px);background:#0c1628;border:1px solid var(--blue);border-radius:4px;padding:2px 9px;font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--blue);z-index:45;pointer-events:none}
+/* SCOREBOARD in game-over */
+.score-table{width:100%;border-collapse:collapse;font-size:12px;margin:10px 0}
+.score-table td{padding:4px 8px;border-bottom:1px solid var(--border)}
+.score-table td:last-child{text-align:right;font-family:'Share Tech Mono',monospace;color:var(--o)}
+/* help */
+.help-content h3{color:var(--o);margin:12px 0 5px;font-size:13px}
+.help-content p,.help-content li{font-size:11px;color:var(--dim);line-height:1.7}
+.help-content li{margin-left:14px}
+.help-content .hilight{color:var(--text);font-weight:700}
+/* SB controls */
+#sbctrl{position:fixed;top:58px;left:calc(var(--pw)+10px);background:#0a1220ee;border:1px solid var(--border);border-radius:7px;padding:10px 12px;z-index:46;display:none;font-size:11px;min-width:200px;backdrop-filter:blur(4px)}
+#sbctrl label{color:var(--dim)}
+#sbctrl input[type=range]{width:120px;accent-color:var(--o)}
+#sbctrl input[type=number]{width:80px;background:#050d18;border:1px solid var(--border);color:#fff;border-radius:3px;padding:2px 5px}
+.scr{display:flex;align-items:center;gap:7px;margin-bottom:5px}
+/* pulse */
+@keyframes pulse{0%{opacity:1}50%{opacity:.3}100%{opacity:1}}
+.blink{animation:pulse .8s infinite}
+/* zoom controls */
+#zoomctl{position:fixed;bottom:calc(var(--bh)+10px);right:calc(var(--rp)+10px);display:flex;flex-direction:column;gap:4px;z-index:48}
+.zbtn{width:26px;height:26px;background:#0c1828;border:1px solid var(--border);color:var(--text);border-radius:4px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.zbtn:hover{background:var(--border)}
+/* milestone toast */
+@keyframes slideUp{from{transform:translateX(-50%) translateY(20px);opacity:0}to{transform:translateX(-50%) translateY(0);opacity:1}}
+.milestone-flash{animation:slideUp .3s ease-out}
+/* help shortcut bar */
+#shortcutbar{position:fixed;bottom:calc(var(--bh)+6px);left:calc(var(--pw)+6px);background:#0a1220cc;border:1px solid var(--border);border-radius:4px;padding:3px 8px;font-size:10px;color:var(--dim);z-index:46;pointer-events:none}
+#shortcutbar span{color:var(--text);font-weight:700}
+
+/* ── QUIZ OVERLAY ─────────────────────────────────────────────── */
+#quizOverlay{position:fixed;bottom:calc(var(--bh)+15px);left:calc(var(--pw)+15px);background:#060e1ef5;border:2px solid var(--o);border-radius:10px;padding:14px 16px;width:420px;max-width:calc(100vw - var(--pw) - var(--rp) - 30px);z-index:75;backdrop-filter:blur(10px);display:none;box-shadow:0 0 40px rgba(255,153,0,.2)}
+.quiz-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.quiz-tag{font-size:9px;font-weight:800;letter-spacing:2px;color:var(--o);text-transform:uppercase}
+.quiz-rew{font-size:10px;color:var(--yellow);font-family:'Share Tech Mono',monospace}
+.quiz-q{font-size:12px;font-weight:700;color:#fff;margin-bottom:10px;line-height:1.5}
+.quiz-opts{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.qbtn{background:#0c1828;border:1px solid var(--border);color:var(--text);border-radius:5px;padding:6px 8px;font-family:'Exo 2',sans-serif;font-size:10px;font-weight:600;cursor:pointer;transition:all .15s;text-align:left;line-height:1.4}
+.qbtn:hover:not([disabled]){border-color:var(--blue);background:#0f1e36}
+.qbtn.correct{background:#0a2010;border-color:var(--green) !important;color:var(--green)}
+.qbtn.wrong{background:#200a0a;border-color:var(--red) !important;color:var(--red)}
+#quizExpl{font-size:10px;color:var(--dim);line-height:1.6;border-top:1px solid var(--border);padding-top:7px;margin-top:8px;display:none}
+#quizCloseBtn{width:100%;background:var(--o);color:#000;border:none;border-radius:4px;padding:6px;font-family:'Exo 2',sans-serif;font-size:11px;font-weight:800;cursor:pointer;margin-top:8px;display:none}
+/* ── COST PANEL ───────────────────────────────────────────────── */
+.pr-row{display:flex;justify-content:space-between;font-size:10px;padding:2px 0;border-bottom:1px solid #0d1a28}
+.pr-n{color:var(--dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0}
+.pr-c{font-family:'Share Tech Mono',monospace;color:var(--yellow);margin-left:5px;flex-shrink:0}
+.pr-total{display:flex;justify-content:space-between;font-size:11px;font-weight:800;padding:4px 0;border-top:1px solid var(--border);margin-top:2px}
+.cg{font-size:9px;font-weight:800;padding:1px 5px;border-radius:3px;letter-spacing:.5px}
+.cg-g{background:#0a2010;color:var(--green);border:1px solid var(--green)}
+.cg-y{background:#1a1400;color:var(--yellow);border:1px solid var(--yellow)}
+.cg-r{background:#200a0a;color:var(--red);border:1px solid var(--red)}
+/* ── SECURITY PANEL ───────────────────────────────────────────── */
+.sec-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.sec-num{font-family:'Share Tech Mono',monospace;font-size:26px;font-weight:700;line-height:1}
+.sec-chk{display:flex;align-items:center;gap:4px;font-size:9px;padding:1px 0}
+.sc-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;background:#3a1010}
+.sc-pass{background:var(--green) !important}
+/* ── EXAM NOTE IN INSPECTOR ───────────────────────────────────── */
+.exam-box{background:#050d18;border:1px solid #1a3050;border-radius:4px;padding:7px 9px;margin-top:8px}
+.eb-title{font-size:9px;font-weight:800;letter-spacing:1.5px;color:var(--o);text-transform:uppercase;margin-bottom:5px}
+.eb-when{font-size:10px;color:var(--green);line-height:1.5;margin-bottom:3px}
+.eb-anti{font-size:10px;color:#ff7070;line-height:1.5;margin-bottom:3px}
+.eb-cost{font-size:10px;color:var(--yellow);line-height:1.5}
+/* ── SCENARIO + QUIZ SCORE CHIPS ──────────────────────────────── */
+#scenarioChip{position:fixed;top:58px;right:calc(var(--rp)+10px);background:#0a0818ee;border:1px solid #9b59b6;border-radius:4px;padding:3px 9px;font-size:10px;color:#c080ff;z-index:47;display:none;pointer-events:none;max-width:220px;line-height:1.4;backdrop-filter:blur(4px)}
+#quizScoreChip{position:fixed;top:58px;left:calc(var(--pw)+10px);background:#0a1220cc;border:1px solid var(--border);border-radius:4px;padding:2px 8px;font-size:10px;color:var(--dim);z-index:47;pointer-events:none;display:none}
+#quizScoreChip b{color:var(--yellow);font-family:'Share Tech Mono',monospace}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div id="topbar">
+  <div class="logo-wrap">
+    <div class="logo-icon">☁</div>
+    <div class="logo-text">AWS <span>Cloud Survival</span></div>
+  </div>
+  <div class="chip"><div class="cl">Budget</div><div class="cv" id="hBudget">$500</div></div>
+  <div class="chip"><div class="cl">Upkeep</div><div class="cv r" id="hUpkeep">$0/s</div></div>
+  <div class="chip"><div class="cl">Net/s</div><div class="cv" id="hNet">$0</div></div>
+  <div class="chip"><div class="cl">Time</div><div class="cv b" id="hTime">00:00</div></div>
+  <div class="chip"><div class="cl">Wave</div><div class="cv y" id="hWave">—</div></div>
+  <div class="chip"><div class="cl">RPS</div><div class="cv" id="hRps">0</div></div>
+  <div class="chip"><div class="cl">Score</div><div class="cv g" id="hScore">0</div></div>
+  <div class="flex1"></div>
+  <button class="tbtn" onclick="saveGame()">💾 Save</button>
+  <button class="tbtn" onclick="loadGame()">📂 Load</button>
+  <button class="tbtn" onclick="openHelp()">? Help</button>
+  <button class="tbtn" id="pauseBtn" onclick="togglePause()">⏸ Pause</button>
+</div>
+<div id="wave-bar"><div id="wave-fill"></div></div>
+
+<!-- LEFT PANEL -->
+<div id="lpanel">
+  <!-- Reputation -->
+  <div class="psec">
+    <div class="ptitle">Reputation
+      <span id="repPct" style="font-family:'Share Tech Mono',monospace;font-size:16px;color:var(--green)">100%</span>
+    </div>
+    <div style="display:flex;justify-content:space-between;margin-bottom:3px">
+      <span style="font-size:10px;color:var(--dim)" id="repStatus">Excellent</span>
+      <span style="font-size:10px;color:var(--dim)">SLA: <span id="slaStatus" style="color:var(--green)">99.9%</span></span>
+    </div>
+    <div class="rep-bg"><div class="rep-fill" id="repFill" style="width:100%;background:var(--green)"></div></div>
+  </div>
+
+  <!-- Wave info -->
+  <div class="psec" id="wavePanel">
+    <div class="ptitle">Current Wave</div>
+    <div class="wave-row">
+      <div class="wave-num" id="waveNum">—</div>
+      <div class="wave-desc" id="waveDesc">Start a game</div>
+    </div>
+    <div style="font-size:10px;color:var(--dim);margin-top:4px">
+      Next: <span id="nextWave" style="color:var(--yellow);font-family:'Share Tech Mono',monospace">—</span>
+    </div>
+    <div style="height:5px;background:#050d18;border-radius:2px;margin-top:5px;overflow:hidden">
+      <div id="waveProgress" style="height:100%;background:linear-gradient(90deg,var(--blue),var(--cyan));width:0%;transition:width .3s"></div>
+    </div>
+  </div>
+
+  <!-- Traffic -->
+  <div class="psec">
+    <div class="ptitle">Live Traffic
+      <span style="font-family:'Share Tech Mono',monospace;color:var(--text)" id="totalPkts">0 active</span>
+    </div>
+    <div class="trow" id="trafficBadges"></div>
+    <div style="margin-top:6px;font-size:10px;color:var(--dim)">
+      Surge: <span id="surgeInfo" style="color:var(--yellow);font-family:'Share Tech Mono',monospace">×1.0</span>
+    </div>
+  </div>
+
+  <!-- Failures -->
+  <div class="psec">
+    <div class="ptitle">Failures <span id="failTotal" class="blink" style="color:var(--red);font-family:'Share Tech Mono',monospace;display:none">0</span></div>
+    <table class="ftable">
+      <tr><th>Type</th><th>Count</th><th>-Rep</th></tr>
+    </table>
+    <div id="failRows"></div>
+  </div>
+
+  <!-- Service Health -->
+  <div class="psec">
+    <div class="ptitle">Service Health
+      <span class="ptitle-btn" id="arToggle" onclick="toggleAutoRepair()">⚙ Auto-Repair: OFF</span>
+    </div>
+    <div id="healthList"><div style="color:var(--dim);font-size:11px">No services placed</div></div>
+  </div>
+
+  <!-- Finances -->
+  <div class="psec">
+    <div class="ptitle">Finances</div>
+    <div class="frow"><span>Total Income</span><span class="fv pos" id="fiIncome">$0</span></div>
+    <div class="frow"><span>Upkeep/s</span><span class="fv neg" id="fiUpkeep">$0</span></div>
+    <div class="frow"><span>Net/s</span><span class="fv neu" id="fiNet">$0</span></div>
+    <div class="frow"><span>Nodes Placed</span><span class="fv" id="fiNodes">0</span></div>
+  </div>
+
+  <!-- Achievements -->
+  <div class="psec">
+    <div class="ptitle">Achievements <span id="achCount" style="color:var(--yellow);font-family:'Share Tech Mono',monospace">0/16</span></div>
+    <div id="achList"></div>
+  </div>
+
+  <!-- Region -->
+  <div class="psec">
+    <div class="ptitle">AWS Region</div>
+    <div id="regionBadges"></div>
+  </div>
+</div>
+
+<!-- CANVAS -->
+<div id="cwrap"><canvas id="gc"></canvas></div>
+
+<!-- RIGHT PANEL -->
+<div id="rpanel">
+  <!-- Node Inspector -->
+  <div class="psec" id="inspectorSec">
+    <div class="ptitle">Node Inspector</div>
+    <div id="inspectorContent" style="color:var(--dim);font-size:11px">Select a node to inspect</div>
+  </div>
+  <!-- Leaderboard / milestones -->
+  <div class="psec">
+    <div class="ptitle">Milestones</div>
+    <div id="milestoneList" style="font-size:11px;color:var(--dim)">None yet</div>
+  </div>
+  <!-- Cost Analysis -->
+  <div class="psec">
+    <div class="ptitle">Monthly Cost
+      <span id="costGrade" class="cg cg-g">OPTIMAL</span>
+    </div>
+    <div id="costList" style="color:var(--dim);font-size:10px">No services placed</div>
+    <div class="pr-total">
+      <span style="color:var(--dim)">Est. Monthly</span>
+      <span id="costTotal" style="font-family:'Share Tech Mono',monospace;color:var(--yellow)">$0/mo</span>
+    </div>
+  </div>
+  <!-- Security Score -->
+  <div class="psec">
+    <div class="ptitle">Security Score</div>
+    <div class="sec-row">
+      <div class="sec-num" id="secScore">0</div>
+      <div style="flex:1">
+        <div style="background:#050d18;border-radius:2px;height:6px;overflow:hidden;margin-bottom:4px">
+          <div id="secFill" style="height:100%;background:var(--red);border-radius:2px;width:0%;transition:width .4s,background .4s"></div>
+        </div>
+        <div id="secLabel" style="font-size:9px;color:var(--dim)">Add WAF · Shield · Cognito</div>
+      </div>
+    </div>
+    <div id="secChecks"></div>
+  </div>
+  <!-- Architecture tips -->
+  <div class="psec">
+    <div class="ptitle">Architecture Tips</div>
+    <div id="tipBox" style="font-size:11px;color:var(--dim);line-height:1.6">
+      💡 Start with <span style="color:var(--o)">WAF → API GW → ALB → EC2 → RDS + S3</span>. Add GuardDuty + KMS + CloudTrail for waves 13+ security compliance.
+    </div>
+  </div>
+  <!-- Traffic distribution -->
+  <div class="psec">
+    <div class="ptitle">Traffic Mix</div>
+    <div id="trafficMixBars"></div>
+  </div>
+  <!-- Top nodes by throughput -->
+  <div class="psec">
+    <div class="ptitle">Top Throughput</div>
+    <div id="topNodes" style="font-size:11px;color:var(--dim)">—</div>
+  </div>
+  <!-- Event log -->
+  <div class="psec" style="flex:1">
+    <div class="ptitle">Event Log</div>
+    <div id="eventLog" style="font-size:10px;color:var(--dim);max-height:180px;overflow-y:auto;line-height:1.7"></div>
+  </div>
+</div>
+
+<!-- BOTTOM BAR -->
+<div id="bbar">
+  <div id="toolstrip">
+    <button class="tbtn2 act" id="tSel" onclick="setTool('select')">👆 Select</button>
+    <button class="tbtn2" id="tCon" onclick="setTool('connect')">🔗 Link</button>
+    <button class="tbtn2" id="tUnl" onclick="setTool('unlink')">✂ Unlink</button>
+    <button class="tbtn2 ract" id="tDel" onclick="setTool('delete')">🗑 Delete</button>
+  </div>
+  <div id="palette-wrap">
+    <div id="cat-tabs"></div>
+    <div id="svc-palette"></div>
+  </div>
+</div>
+
+<!-- OVERLAYS -->
+<div class="overlay" id="mainMenu">
+  <div class="modal" style="max-width:500px">
+    <div style="font-size:40px;margin-bottom:4px">☁</div>
+    <h1>AWS Cloud Survival</h1>
+    <p>Build AWS infrastructure to route traffic, block attacks, and keep your cloud alive. Answer <span style="color:var(--blue)">SAA-C03</span>, <span style="color:var(--yellow)">SAP-C02</span>, and <span style="color:var(--red)">SCS-C02</span> exam questions each wave to earn bonus budget and reinforce exam concepts.</p>
+    <div class="diff-grid" id="diffGrid">
+      <div class="diff-card sel" data-diff="easy" onclick="selDiff(this,'easy')"><div class="dn">☁ Cloud Architect</div><div class="dd">Easy start · $800 budget · Slow ramp · Great for learning</div></div>
+      <div class="diff-card" data-diff="normal" onclick="selDiff(this,'normal')"><div class="dn">⚡ Solutions Engineer</div><div class="dd">Normal · $500 budget · Moderate ramp · Recommended</div></div>
+      <div class="diff-card" data-diff="hard" onclick="selDiff(this,'hard')"><div class="dn">🔥 Site Reliability</div><div class="dd">Hard · $350 budget · Fast escalation · Tough</div></div>
+      <div class="diff-card" data-diff="expert" onclick="selDiff(this,'expert')"><div class="dn">💀 Black Friday</div><div class="dd">Expert · $200 budget · Instant chaos · For pros only</div></div>
+    </div>
+    <button class="mbtn" onclick="startGame('survival')">▶ Start Survival</button>
+    <button class="mbtn sec" onclick="startGame('sandbox')">🧪 Sandbox Mode</button>
+    <div style="margin-top:8px;font-size:10px;color:var(--dim)">30 AWS services · 16 Waves · SAA/SAP/SCS Quiz · Save/Load · v2.1</div>
+  </div>
+</div>
+
+<div class="overlay" id="gameOverScreen" style="display:none">
+  <div class="modal">
+    <div style="font-size:36px;margin-bottom:6px" id="goEmoji">💥</div>
+    <h1 id="goTitle">Infrastructure Collapsed</h1>
+    <h2 id="goReason">Reputation reached 0%</h2>
+    <div style="font-family:'Share Tech Mono',monospace;font-size:40px;color:var(--o);margin:8px 0" id="goScore">0</div>
+    <table class="score-table" id="scoreTable"></table>
+    <button class="mbtn grn" onclick="restartGame()">🔄 Retry Same Setup</button>
+    <button class="mbtn sec" onclick="returnMenu()">← Main Menu</button>
+  </div>
+</div>
+
+<div class="overlay" id="waveAnnounce" style="display:none">
+  <div class="modal" style="max-width:380px">
+    <div style="font-size:32px" id="waBanner">⚡</div>
+    <h1 id="waTitle">Wave 1</h1>
+    <h2 id="waSubtitle">Incoming Traffic</h2>
+    <p id="waDesc">New traffic pattern detected.</p>
+    <button class="mbtn" onclick="dismissWave()">▶ Deploy</button>
+  </div>
+</div>
+
+<div class="overlay" id="helpModal" style="display:none" onclick="if(event.target===this)closeHelp()">
+  <div class="modal" style="max-width:580px;max-height:85vh;overflow-y:auto;text-align:left">
+    <h1 style="font-size:20px;margin-bottom:10px">📖 AWS Cloud Survival — Manual</h1>
+    <div class="help-content">
+      <h3>🚦 Traffic Types</h3>
+      <ul>
+        <li><span class="hilight" style="color:#4da6ff">STATIC</span> – Images, CSS, JS files → route to S3 / CloudFront</li>
+        <li><span class="hilight" style="color:#3ddc84">READ</span> – API data fetches → RDS / DynamoDB / ElastiCache</li>
+        <li><span class="hilight" style="color:#f0c040">WRITE</span> – Database writes → RDS / DynamoDB / SQS → DB</li>
+        <li><span class="hilight" style="color:#c080ff">UPLOAD</span> – File uploads → S3 (heavy processing)</li>
+        <li><span class="hilight" style="color:#ff8040">SEARCH</span> – Complex queries → OpenSearch / RDS only</li>
+        <li><span class="hilight" style="color:#e74c3c">STREAM</span> – Real-time events → Kinesis → Lambda/RDS</li>
+        <li><span class="hilight" style="color:#ff3030">DDoS</span> – Attacks → block with WAF / Shield</li>
+        <li><span class="hilight" style="color:#ff8800">AUTH</span> – Login requests → Cognito / API Gateway</li>
+        <li><span class="hilight" style="color:#00d4ff">ML</span> – Inference → SageMaker / Lambda</li>
+      </ul>
+      <h3>🔧 Services (26 total)</h3>
+      <ul>
+        <li><b>Security:</b> WAF (L7 DDoS/AUTH), Shield (L3/L4 DDoS burst), Cognito (AUTH), GuardDuty (threat detection DD+AUTH), KMS (encryption compliance, all traffic), CloudTrail (audit logging, all traffic)</li>
+        <li><b>Edge:</b> Route 53 (DNS routing), CloudFront (CDN 70% hit), API Gateway (rate-limits), Global Accelerator (TCP/UDP anycast, all traffic)</li>
+        <li><b>Networking:</b> ALB (round-robin), NLB (TCP-level, lower latency), VPC NAT (passes all traffic)</li>
+        <li><b>Compute:</b> EC2 (general), Lambda (fast burst, limited), ECS/Fargate (scalable containers), EKS (Kubernetes)</li>
+        <li><b>Database:</b> RDS (SQL: READ/WRITE/SEARCH), DynamoDB (NoSQL: READ/WRITE faster), Aurora (high-performance SQL), DocumentDB (document store)</li>
+        <li><b>Caching:</b> ElastiCache (35–65% hit rate), DAX (DynamoDB Accelerator, READ only)</li>
+        <li><b>Storage:</b> S3 (STATIC/UPLOAD), EFS (shared file system)</li>
+        <li><b>Messaging:</b> SQS (buffers 200 req), SNS (fan-out broadcast), Kinesis (STREAM ingestion)</li>
+        <li><b>AI/ML:</b> SageMaker (handles ML traffic)</li>
+        <li><b>Search:</b> OpenSearch (SEARCH + READ, high capacity)</li>
+      </ul>
+      <h3>🛠 Tools</h3>
+      <ul>
+        <li><b>Select</b> – Drag nodes · Click upgradeable nodes to upgrade · Inspect in right panel</li>
+        <li><b>Link</b> – Click source → click destination to connect</li>
+        <li><b>Unlink</b> – Click on a connection arrow to remove it</li>
+        <li><b>Delete</b> – Remove node (50% refund)</li>
+      </ul>
+      <h3>⚙️ Mechanics</h3>
+      <ul>
+        <li>Traffic spawns from the left edge as color-coded packets</li>
+        <li>Packets route through your graph following connections</li>
+        <li>Unhandled packets lose −1% Reputation; DDoS leaks lose −2%</li>
+        <li>Node health degrades from overload; 0% health nodes hurt reputation</li>
+        <li>Waves escalate every 60s in Survival mode — each wave introduces new traffic types</li>
+        <li>Budget −$1000 or Reputation 0% = Game Over</li>
+        <li><b>Upgrades:</b> Tier 1→2→3 doubles/triples capacity and speed</li>
+        <li><b>Shift+click</b> a service card to place multiple instances</li>
+        <li><b>Scroll wheel</b> to zoom canvas · Middle-drag to pan</li>
+        <li><b>Hotkeys:</b> S=Select, C=Connect, D=Delete, U=Unlink, Space=Pause, R=Reset view</li>
+      </ul>
+      <h3>💡 Recommended Architectures</h3>
+      <ul>
+        <li><b>Basic (SAA):</b> WAF → API GW → ALB → EC2 → RDS + S3</li>
+        <li><b>Cached (SAA):</b> CloudFront → WAF → API GW → ALB → EC2 → ElastiCache → RDS</li>
+        <li><b>High Scale (SAP):</b> Shield → WAF → Route 53 → CloudFront → API GW → NLB → ECS → Aurora + DynamoDB + OpenSearch</li>
+        <li><b>Streaming (SAP):</b> Kinesis → Lambda → DynamoDB</li>
+        <li><b>Secure (SCS Wave 13+):</b> GuardDuty + KMS + CloudTrail + Cognito + WAF + Shield</li>
+        <li><b>Global TCP (SAP):</b> Global Accelerator → NLB → ECS/EKS → Aurora Global</li>
+      </ul>
+      <h3>🎓 Exam Coverage</h3>
+      <ul>
+        <li><span class="hilight" style="color:var(--blue)">📚 SAA-C03</span> — Solutions Architect Associate: core services, HA, scaling, storage</li>
+        <li><span class="hilight" style="color:var(--yellow)">⚡ SAP-C02</span> — Solutions Architect Professional: advanced architecture, cost, migrations</li>
+        <li><span class="hilight" style="color:var(--red)">🔐 SCS-C02</span> — Security Specialty: IAM, KMS, GuardDuty, CloudTrail, compliance</li>
+        <li>Each wave quiz is randomly drawn from the full question pool — different questions every game!</li>
+      </ul>
+    </div>
+    <button class="mbtn" style="margin-top:14px" onclick="closeHelp()">Close</button>
+  </div>
+</div>
+
+<!-- QUIZ OVERLAY -->
+<div id="quizOverlay">
+  <div class="quiz-hdr">
+    <span class="quiz-tag" id="quizTagLabel">📚 AWS Exam Question</span>
+    <span class="quiz-rew" id="quizRew">+$50 if correct</span>
+  </div>
+  <div class="quiz-q" id="quizQ"></div>
+  <div class="quiz-opts" id="quizOpts"></div>
+  <div id="quizExpl"></div>
+  <button id="quizCloseBtn" onclick="closeQuiz()">✓ Got it — Back to game</button>
+</div>
+
+<!-- SANDBOX CONTROLS -->
+<div id="sbctrl">
+  <div class="scr"><label>RPS</label><input type="range" id="sbRps" min="1" max="50" value="5"><span id="sbRpsVal" style="color:var(--o);font-family:'Share Tech Mono',monospace;min-width:20px">5</span></div>
+  <div class="scr"><label>Budget</label><input type="number" id="sbBudget" value="9999"><button onclick="setSbBudget()" style="background:var(--o);border:none;border-radius:3px;padding:2px 8px;cursor:pointer;font-weight:700">Set</button></div>
+  <div class="scr"><label>Upkeep</label><input type="checkbox" id="sbUpkeep" checked style="accent-color:var(--o)"><span style="color:var(--dim)">On</span></div>
+  <div class="scr"><label>Traffic Mix</label><select id="sbMix" style="background:#050d18;border:1px solid var(--border);color:#fff;border-radius:3px;padding:2px">
+    <option value="normal">Normal</option><option value="ddos">DDoS Heavy</option><option value="reads">Read Heavy</option><option value="upload">Upload Heavy</option><option value="stream">Streaming</option>
+  </select></div>
+  <button onclick="clearAll()" style="width:100%;background:#1a0808;border:1px solid #3a1010;color:var(--red);border-radius:4px;padding:5px;cursor:pointer;font-weight:700;margin-top:4px">🗑 Clear All</button>
+</div>
+
+<!-- UI WIDGETS -->
+<div id="infopanel"></div>
+<div id="evbanner"></div>
+<div id="toast"></div>
+<div id="modechip">SURVIVAL</div>
+<div id="scenarioChip"></div>
+<div id="quizScoreChip">🎓 Quiz: <b id="quizScoreVal">0</b> correct</div>
+<div id="shortcutbar"><span>S</span>elect · <span>C</span>onnect · <span>U</span>nlink · <span>D</span>elete · <span>Space</span> Pause · <span>R</span> Reset view</div>
+<div id="zoomctl">
+  <button class="zbtn" onclick="zoomIn()">+</button>
+  <button class="zbtn" onclick="zoomOut()">−</button>
+  <button class="zbtn" onclick="resetView()" title="Reset view">⊙</button>
+</div>
+
+<script>
+'use strict';
+// ═══════════════════════════════════════════════════════════════
+//  AWS CLOUD SURVIVAL v2 — Full Game Engine
+// ═══════════════════════════════════════════════════════════════
+
+const canvas = document.getElementById('gc');
+const ctx = canvas.getContext('2d');
+let CW, CH;
+
+function resize() {
+  const wrap = document.getElementById('cwrap');
+  CW = canvas.width = wrap.clientWidth;
+  CH = canvas.height = wrap.clientHeight;
+}
+window.addEventListener('resize', resize); resize();
+
+// ─── Traffic types ───────────────────────────────────────────
+const TTYPES = ['ST','RD','WR','UP','SR','STR','DD','AUTH','ML'];
+const TCOLORS = { ST:'#4da6ff', RD:'#3ddc84', WR:'#f0c040', UP:'#c080ff', SR:'#ff8040', STR:'#e74c3c', DD:'#ff2020', AUTH:'#ff9900', ML:'#00d4ff' };
+const TLABELS = { ST:'Static', RD:'Read', WR:'Write', UP:'Upload', SR:'Search', STR:'Stream', DD:'DDoS', AUTH:'Auth', ML:'ML Infer' };
+const TINCOME = { ST:.6, RD:1.2, WR:1.8, UP:2.5, SR:2.2, STR:1.5, DD:0, AUTH:.8, ML:3.0 };
+const TREPLOSS = { ST:1, RD:1, WR:1.5, UP:1.5, SR:1.5, STR:1, DD:2, AUTH:1, ML:2 };
+
+// ─── Service categories ──────────────────────────────────────
+const CATEGORIES = [
+  { id:'security', label:'🛡 Security' },
+  { id:'edge',     label:'🌐 Edge' },
+  { id:'network',  label:'🔀 Network' },
+  { id:'compute',  label:'⚡ Compute' },
+  { id:'database', label:'🗄 Database' },
+  { id:'cache',    label:'🧊 Cache' },
+  { id:'storage',  label:'🪣 Storage' },
+  { id:'messaging',label:'📨 Messaging' },
+  { id:'ai',       label:'🤖 AI / ML' },
+  { id:'search',   label:'🔍 Search' },
+];
+
+// ─── Service definitions (20 services) ────────────────────────
+const SDEFS = [
+  // Security
+  { id:'WAF',     cat:'security', name:'AWS WAF',        icon:'🛡',  cost:40,  upkeep:0.8,  color:'#e74c3c', cap:60,  procMs:50,  handles:['DD','AUTH'],               upgradeable:true,  desc:'Blocks DDoS & bad traffic. Tier up → more DDoS capacity.' },
+  { id:'SHIELD',  cat:'security', name:'AWS Shield',     icon:'🔰', cost:90,  upkeep:1.2,  color:'#c0392b', cap:200, procMs:20,  handles:['DD'],                      upgradeable:false, desc:'Advanced DDoS absorber. High capacity, absorbs burst attacks.' },
+  { id:'COGNITO', cat:'security', name:'Amazon Cognito', icon:'🔑', cost:55,  upkeep:0.6,  color:'#e67e22', cap:50,  procMs:80,  handles:['AUTH'],                    upgradeable:true,  desc:'Auth service. Handles AUTH traffic, passes others forward.' },
+  // Edge
+  { id:'R53',     cat:'edge',     name:'Route 53',       icon:'🌍', cost:30,  upkeep:0.4,  color:'#9b59b6', cap:200, procMs:10,  handles:['ST','RD','WR','UP','SR','STR','AUTH','ML'], upgradeable:false, desc:'DNS router. Distributes all traffic types across backends.' },
+  { id:'CF',      cat:'edge',     name:'CloudFront',     icon:'🌐', cost:65,  upkeep:0.7,  color:'#8e44ad', cap:80,  procMs:20,  handles:['ST','RD'],                 upgradeable:true,  desc:'CDN. 70% cache hit for STATIC, 40% for READ. Tier up = higher hit rate.' },
+  { id:'APIGW',   cat:'edge',     name:'API Gateway',    icon:'🚪', cost:75,  upkeep:0.6,  color:'#d35400', cap:20,  procMs:80,  handles:['ST','RD','WR','UP','SR','AUTH','ML'], upgradeable:true, desc:'Rate-limits traffic. Tier 1/2/3 → 20/40/80 RPS limit.' },
+  // Network
+  { id:'ALB',     cat:'network',  name:'AWS ALB',        icon:'⚖',  cost:55,  upkeep:0.7,  color:'#2980b9', cap:100, procMs:30,  handles:['ST','RD','WR','UP','SR','AUTH','ML'], upgradeable:false, desc:'L7 round-robin load balancer. Distributes all traffic.' },
+  { id:'NLB',     cat:'network',  name:'AWS NLB',        icon:'🔁', cost:45,  upkeep:0.5,  color:'#1a6bb5', cap:150, procMs:15,  handles:['ST','RD','WR','UP','SR','STR','AUTH','ML'], upgradeable:false, desc:'L4 TCP load balancer. Lower latency, ideal for STREAM.' },
+  { id:'NATGW',   cat:'network',  name:'VPC NAT GW',     icon:'🔗', cost:35,  upkeep:0.4,  color:'#16a085', cap:200, procMs:10,  handles:['ST','RD','WR','UP','SR','STR','AUTH','ML'], upgradeable:false, desc:'Passes all traffic types. Cheap routing node.' },
+  // Compute
+  { id:'EC2',     cat:'compute',  name:'EC2 Instance',   icon:'💻', cost:60,  upkeep:1.0,  color:'#f0c040', cap:15,  procMs:200, handles:['ST','RD','WR','UP','SR','AUTH','ML'], upgradeable:true, desc:'General compute. Tier 1/2/3 → 15/30/50 capacity.' },
+  { id:'LAMBDA',  cat:'compute',  name:'AWS Lambda',     icon:'λ',  cost:40,  upkeep:0.5,  color:'#f39c12', cap:30,  procMs:100, handles:['ST','RD','WR','STR','AUTH','ML'], upgradeable:true, desc:'Serverless. Faster than EC2 for bursts. Cannot handle SEARCH/UPLOAD.' },
+  { id:'ECS',     cat:'compute',  name:'ECS/Fargate',    icon:'🐳', cost:80,  upkeep:1.2,  color:'#2196f3', cap:40,  procMs:150, handles:['ST','RD','WR','UP','SR','AUTH','ML'], upgradeable:true, desc:'Container service. Scalable compute, handles all types.' },
+  { id:'EKS',     cat:'compute',  name:'EKS (K8s)',      icon:'☸',  cost:120, upkeep:1.8,  color:'#326ce5', cap:60,  procMs:120, handles:['ST','RD','WR','UP','SR','STR','AUTH','ML'], upgradeable:true, desc:'Kubernetes. Highest compute capacity, all traffic types.' },
+  // Database
+  { id:'RDS',     cat:'database', name:'Amazon RDS',     icon:'🗄',  cost:150, upkeep:2.0,  color:'#27ae60', cap:10,  procMs:300, handles:['RD','WR','SR'],            upgradeable:true,  desc:'SQL DB: READ/WRITE/SEARCH. Tier up → more capacity.' },
+  { id:'DYNAMO',  cat:'database', name:'DynamoDB',       icon:'⚛',  cost:85,  upkeep:1.3,  color:'#1abc9c', cap:20,  procMs:120, handles:['RD','WR'],                 upgradeable:true,  desc:'NoSQL: READ/WRITE. Faster than RDS, cannot handle SEARCH.' },
+  { id:'AURORA',  cat:'database', name:'Aurora DB',      icon:'🌟', cost:200, upkeep:3.0,  color:'#2ecc71', cap:30,  procMs:150, handles:['RD','WR','SR'],            upgradeable:true,  desc:'High-performance SQL. Faster than RDS, higher capacity.' },
+  { id:'DOCDB',   cat:'database', name:'DocumentDB',     icon:'📄', cost:110, upkeep:1.6,  color:'#27ae60', cap:18,  procMs:180, handles:['RD','WR'],                 upgradeable:true,  desc:'Document store. Good for READ/WRITE, no SEARCH.' },
+  // Cache
+  { id:'CACHE',   cat:'cache',    name:'ElastiCache',    icon:'🧊', cost:65,  upkeep:0.9,  color:'#2980b9', cap:50,  procMs:15,  handles:['ST','RD'],                 upgradeable:true,  desc:'Cache: 35/50/65% hit rate by tier for ST/RD traffic.' },
+  { id:'DAX',     cat:'cache',    name:'DynamoDB DAX',   icon:'⚡', cost:50,  upkeep:0.7,  color:'#1a9bd6', cap:40,  procMs:5,   handles:['RD'],                      upgradeable:false, desc:'DynamoDB Accelerator. Near-instant READ hits (~90%).' },
+  // Storage
+  { id:'S3',      cat:'storage',  name:'Amazon S3',      icon:'🪣', cost:25,  upkeep:0.3,  color:'#e67e22', cap:120, procMs:80,  handles:['ST','UP'],                 upgradeable:false, desc:'Object storage. Terminal for STATIC and UPLOAD traffic.' },
+  { id:'EFS',     cat:'storage',  name:'Amazon EFS',     icon:'💾', cost:45,  upkeep:0.5,  color:'#e67e22', cap:60,  procMs:120, handles:['ST','UP','WR'],            upgradeable:false, desc:'Shared file system. Handles STATIC, UPLOAD, and WRITE.' },
+  // Messaging
+  { id:'SQS',     cat:'messaging',name:'Amazon SQS',     icon:'📬', cost:45,  upkeep:0.5,  color:'#9b59b6', cap:200, procMs:20,  handles:['ST','RD','WR','UP','SR','STR','AUTH','ML'], upgradeable:false, desc:'Queue buffer: holds up to 200 requests. Smooths traffic spikes.' },
+  { id:'SNS',     cat:'messaging',name:'Amazon SNS',     icon:'📢', cost:35,  upkeep:0.4,  color:'#e91e63', cap:150, procMs:10,  handles:['ST','RD','WR','STR'],      upgradeable:false, desc:'Pub/Sub fan-out. Broadcasts to multiple downstream nodes.' },
+  { id:'KINESIS', cat:'messaging',name:'Kinesis',        icon:'🌊', cost:70,  upkeep:0.9,  color:'#ff5722', cap:100, procMs:30,  handles:['STR','WR'],                upgradeable:true,  desc:'Real-time stream ingestion. Required for STREAM traffic.' },
+  // AI
+  { id:'SAGE',    cat:'ai',       name:'SageMaker',      icon:'🤖', cost:180, upkeep:2.5,  color:'#00d4ff', cap:8,   procMs:500, handles:['ML'],                      upgradeable:true,  desc:'ML inference. Only service that handles ML traffic. Slow but high value.' },
+  // Search
+  { id:'OPENSEARCH',cat:'search', name:'OpenSearch',     icon:'🔍', cost:130, upkeep:1.8,  color:'#ff6b35', cap:20,  procMs:200, handles:['SR','RD'],                 upgradeable:true,  desc:'Elasticsearch-compatible. Handles SEARCH and READ with high capacity.' },
+  // Security extras
+  { id:'GUARDDUTY',  cat:'security', name:'AWS GuardDuty',       icon:'🕵', cost:60,  upkeep:0.7, color:'#c0392b', cap:200, procMs:8,   handles:['DD','AUTH'],                               upgradeable:false, desc:'ML-based threat detection. Analyzes CloudTrail + VPC Flow Logs. Blocks DD attacks and flags anomalous AUTH.' },
+  { id:'KMS',        cat:'security', name:'AWS KMS',             icon:'🔐', cost:45,  upkeep:0.4, color:'#e67e22', cap:200, procMs:5,   handles:['ST','RD','WR','UP','SR','STR','AUTH','ML'], upgradeable:false, desc:'Key management & envelope encryption. Passes all traffic; required for HIPAA/PCI-DSS data-at-rest compliance.' },
+  { id:'CLOUDTRAIL', cat:'security', name:'AWS CloudTrail',      icon:'📋', cost:30,  upkeep:0.3, color:'#9b59b6', cap:200, procMs:5,   handles:['ST','RD','WR','UP','SR','STR','AUTH','ML'], upgradeable:false, desc:'API audit log for all AWS calls. Required for HIPAA, PCI-DSS, SOC2 compliance. Passes all traffic types.' },
+  // Edge extra
+  { id:'GLOBALACCEL',cat:'edge',    name:'Global Accelerator',  icon:'🚀', cost:80,  upkeep:1.0, color:'#00d4ff', cap:150, procMs:8,   handles:['ST','RD','WR','UP','SR','STR','AUTH','ML'], upgradeable:false, desc:'AWS backbone anycast routing. Static IPs, instant failover (<30s), lower latency than internet for TCP/UDP.' },
+];
+
+// ─── Waves ────────────────────────────────────────────────────
+const WAVES = [
+  { n:1,  label:'Cold Start',       rps:2,   mix:{ST:50,RD:30,WR:10,UP:5,DD:5},              desc:'Light static traffic. Build your core infrastructure.' },
+  { n:2,  label:'Read Surge',        rps:4,   mix:{ST:30,RD:40,WR:15,UP:5,DD:10},             desc:'More reads coming in. Add caching or a database.' },
+  { n:3,  label:'Write Storm',       rps:6,   mix:{ST:20,RD:30,WR:30,UP:10,DD:10},            desc:'Writes increasing. RDS or DynamoDB needed.' },
+  { n:4,  label:'Upload Blitz',      rps:8,   mix:{ST:15,RD:25,WR:25,UP:25,DD:10},            desc:'Heavy uploads. Route to S3 or EFS.' },
+  { n:5,  label:'DDoS Wave',         rps:10,  mix:{ST:15,RD:20,WR:15,UP:10,DD:35,SR:5},       desc:'Attack detected! WAF + Shield recommended.' },
+  { n:6,  label:'Search Overload',   rps:12,  mix:{ST:10,RD:25,WR:20,UP:10,SR:25,DD:10},      desc:'Search queries spiking. Add OpenSearch or Aurora.' },
+  { n:7,  label:'Auth Flood',        rps:14,  mix:{ST:10,RD:20,WR:15,UP:5,SR:10,AUTH:30,DD:10},desc:'Login attempts flooding. Add Cognito.' },
+  { n:8,  label:'Stream Event',      rps:16,  mix:{ST:10,RD:15,WR:10,UP:5,SR:10,STR:35,DD:15},desc:'Real-time events pouring in. Kinesis needed.' },
+  { n:9,  label:'ML Inference Rush', rps:18,  mix:{ST:10,RD:15,WR:10,UP:5,SR:5,ML:30,DD:15,AUTH:10},desc:'ML workloads! SageMaker needed.' },
+  { n:10, label:'Black Friday',      rps:22,  mix:{ST:10,RD:15,WR:15,UP:10,SR:10,STR:10,DD:20,AUTH:5,ML:5}, desc:'Everything at once. Peak load. Survive!' },
+  { n:11, label:'Global Scale',      rps:28,  mix:{ST:8,RD:12,WR:12,UP:8,SR:12,STR:12,DD:20,AUTH:8,ML:8},  desc:'Global scale event. You need a full architecture.' },
+  { n:12, label:'Apocalypse',        rps:35,  mix:{ST:5,RD:10,WR:10,UP:8,SR:10,STR:10,DD:30,AUTH:7,ML:10},  desc:'Maximum chaos. All traffic types. Good luck.' },
+  { n:13, label:'Zero Trust',        rps:42,  mix:{ST:5,RD:8, WR:8, UP:5,SR:8, STR:8, DD:28,AUTH:22,ML:8},   desc:'Zero-trust security posture required. Heavy AUTH abuse + DDoS. Add GuardDuty + KMS.' },
+  { n:14, label:'Compliance Audit',  rps:48,  mix:{ST:5,RD:8, WR:10,UP:8,SR:8, STR:8, DD:22,AUTH:15,ML:16},  desc:'Security audit in progress. All compliance checks must pass. Add CloudTrail + KMS.' },
+  { n:15, label:'Data Breach Alert', rps:55,  mix:{ST:5,RD:8, WR:8, UP:10,SR:7,STR:8, DD:32,AUTH:10,ML:12},  desc:'Massive DDoS + data exfiltration detected. Full security stack required to survive.' },
+  { n:16, label:'Perfect Storm',     rps:65,  mix:{ST:4,RD:7, WR:7, UP:7, SR:7, STR:7, DD:38,AUTH:8, ML:15},  desc:'Everything at once. Only a perfectly secured and scaled architecture survives.' },
+];
+
+// ─── Achievements ──────────────────────────────────────────────
+const ACHIEVEMENTS = [
+  { id:'first_node',    icon:'🔧', name:'First Deploy',     desc:'Place your first service node' },
+  { id:'full_route',    icon:'🔗', name:'Fully Connected',   desc:'Route all 6 traffic types successfully' },
+  { id:'wave5',         icon:'🌊', name:'Wave Rider',        desc:'Survive to wave 5' },
+  { id:'wave10',        icon:'🌊', name:'Tsunami Survivor',  desc:'Survive to wave 10' },
+  { id:'no_fail_wave',  icon:'⭐', name:'Perfect Wave',      desc:'Complete a wave with 0 failures' },
+  { id:'budget_1000',   icon:'💰', name:'Cloud Millionaire', desc:'Accumulate $1000 in income' },
+  { id:'ddos_100',      icon:'🛡', name:'DDoS Destroyer',    desc:'Block 100 DDoS attacks' },
+  { id:'proc_500',      icon:'⚡', name:'Processing Beast',  desc:'Process 500 total requests' },
+  { id:'ten_nodes',     icon:'🏗', name:'Cloud Architect',   desc:'Place 10 or more nodes' },
+  { id:'tier3_node',    icon:'🌟', name:'Max Tier',          desc:'Upgrade any node to Tier 3' },
+  { id:'rep_100',       icon:'💎', name:'Perfect SLA',       desc:'Maintain 100% reputation for 2 minutes' },
+  { id:'all_services',  icon:'☁', name:'Full Stack AWS',    desc:'Use at least 15 different service types' },
+  { id:'security_100',  icon:'🔒', name:'Secure Baseline',   desc:'Achieve 100% security score' },
+  { id:'quiz_ace',      icon:'🎓', name:'Exam Ready',        desc:'Answer 10+ quiz questions correctly in one run' },
+  { id:'wave15',        icon:'🌊', name:'Extreme Survivor',  desc:'Survive to wave 15' },
+  { id:'threat_hunter', icon:'🕵', name:'Threat Hunter',     desc:'Block 200 attacks with WAF + Shield + GuardDuty combined' },
+];
+
+// ─── Tip rotation ──────────────────────────────────────────────
+const TIPS = [
+  'Route STATIC/UPLOAD → CloudFront → S3 for best performance.',
+  'Add SQS between ALB and EC2 to absorb traffic bursts.',
+  'ElastiCache before RDS reduces database load significantly.',
+  'Shield + WAF together handle virtually all DDoS patterns.',
+  'Kinesis is required to handle STREAM traffic — route STR through it.',
+  'SageMaker is expensive but the only ML endpoint. Tier it up fast.',
+  'DynamoDB + DAX is the fastest READ path for non-SEARCH queries.',
+  'Upgrade nodes to Tier 3 before placing more — efficiency > quantity.',
+  'OpenSearch handles SEARCH at 3× the capacity of RDS.',
+  'Route 53 as your entry point distributes traffic intelligently.',
+  'EKS has the highest compute capacity — good for wave 10+.',
+  'SNS fan-out lets you broadcast traffic to multiple DB backends.',
+  'GuardDuty handles DD + AUTH threats using ML — cheap and always-on.',
+  'KMS is required for HIPAA/PCI-DSS encryption-at-rest compliance.',
+  'CloudTrail is the audit backbone for SOC2/PCI-DSS — enable it early.',
+  'Global Accelerator beats Route 53 for instant TCP/UDP failover with static IPs.',
+  'Add GuardDuty + CloudTrail + KMS for waves 13+ security compliance.',
+  'SCS exam tip: IAM Roles > IAM Users for all application access patterns.',
+  'SAP tip: Transit Gateway scales to 1000s of VPCs; VPC Peering is not transitive.',
+];
+
+// ─── Exam & Pricing data per service ─────────────────────────
+const SEXAM = {
+  WAF:    { monthly:8,   whenToUse:'L7 attack filtering: SQLi, XSS, rate-based rules. Required for PCI-DSS on internet-facing apps.', antiPattern:'WAF alone ≠ volumetric DDoS — add Shield for L3/L4 attacks (Shield Standard is FREE).', costNote:'$5/WebACL + $0.60/million requests. ~$8–30/month typical.' },
+  SHIELD: { monthly:90,  whenToUse:'Volumetric DDoS protection (Gbps-scale). Advanced gives DRT 24/7 access + cost-spike protection guarantee.', antiPattern:'Shield Standard is FREE and always active. Advanced ($3K/month) only for critical high-value public endpoints.', costNote:'Standard: FREE (always on). Advanced: $3,000/month flat + data transfer.' },
+  COGNITO:{ monthly:12,  whenToUse:'Customer-facing auth with MFA, social login (Google/Facebook), SAML/OIDC federation. Required for HIPAA auth workloads.', antiPattern:"Don't use for machine-to-machine (M2M) auth — use IAM roles. Not for internal employee SSO — use IAM Identity Center.", costNote:'FREE for first 50K MAUs. $0.0055/MAU after. Very cost-effective at scale.' },
+  R53:    { monthly:8,   whenToUse:'DNS + health checks + routing policies: Latency, Geolocation, Failover, Weighted, Multi-Value Answer.', antiPattern:'Simple routing has NO health checks — must add health checks explicitly to enable failover.', costNote:'$0.50/hosted zone/month + $0.40/million queries. 100% SLA on DNS resolution.' },
+  CF:     { monthly:25,  whenToUse:'Global CDN for static content + API acceleration. Lambda@Edge for custom logic at the edge. Origin Shield for deep caching.', antiPattern:'Non-cacheable dynamic content adds latency without custom cache headers or Lambda@Edge configuration.', costNote:'$0.0085/GB data transfer (US/EU). First 1TB free/month. Origin requests billed separately.' },
+  APIGW:  { monthly:20,  whenToUse:'REST/HTTP/WebSocket APIs, throttling, usage plans, API keys, Cognito/Lambda authorizers, VPC Link.', antiPattern:'HTTP API is 71% cheaper than REST API for simple proxy patterns. Use REST API only if you need usage plans or resource policies.', costNote:'REST API: $3.50/million calls. HTTP API: $1.00/million calls. Free tier: 1M calls/month for 12 months.' },
+  ALB:    { monthly:22,  whenToUse:'L7 HTTP/HTTPS load balancing, host/path-based routing, microservices, sticky sessions, gRPC, WebSocket.', antiPattern:"Don't use ALB when you need static IPs or need to preserve source IP — use NLB. ALB can't route raw TCP/UDP.", costNote:'$16.20/month base + $0.008/LCU-hour. Each LCU = 25 new connections/sec or 3,000 active connections.' },
+  NLB:    { monthly:18,  whenToUse:'L4 TCP/UDP/TLS, static IPs, ultra-low latency (<1ms), preserve client IP, gaming, financial systems, IoT.', antiPattern:"NLB can't do content-based routing or host/path rules — use ALB for that. No built-in HTTP features.", costNote:'$16.20/month base + $0.006/LCU-hour. More efficient than ALB at very high TCP throughput.' },
+  NATGW:  { monthly:45,  whenToUse:'Managed NAT for private subnets to reach internet. Fully HA within an AZ. No patching required.', antiPattern:'$0.045/GB processed is expensive at high throughput. Use NAT Instance (EC2) for dev/test or low traffic to cut costs.', costNote:'$0.045/hour ($33/month) + $0.045/GB processed. Deploy one per AZ for full HA (multiplies cost).' },
+  EC2:    { monthly:30,  whenToUse:'Custom compute, stateful apps, Windows workloads, persistent EBS storage, consistent CPU requirements.', antiPattern:"Don't use On-Demand for predictable workloads — Reserved Instances save 40–60%. Use Spot for fault-tolerant batch/ML.", costNote:'t3.medium On-Demand: ~$30/month. 1yr Reserved: ~$18/month. Spot instances: up to 90% off.' },
+  LAMBDA: { monthly:5,   whenToUse:'Event-driven, stateless, <15-minute tasks, API backends, file processing triggers, scheduled jobs.', antiPattern:'Cold start latency (100ms–1s) hurts latency-sensitive user APIs. Not suitable for CPU-heavy or long-running workloads.', costNote:'$0.20/million invocations + $0.000016/GB-second. First 1M requests FREE/month forever. Scales to zero.' },
+  ECS:    { monthly:40,  whenToUse:'Containerized microservices, CI/CD workloads, batch jobs. Fargate = serverless containers with no cluster management.', antiPattern:"ECS has no Kubernetes API — use EKS if you need Kubernetes ecosystem tools or multi-cloud portability.", costNote:'Fargate: $0.04048/vCPU-hr + $0.004445/GB-hr. EC2 launch type reuses existing instances (cheaper at scale).' },
+  EKS:    { monthly:100, whenToUse:'Kubernetes workloads, complex microservices, multi-cloud/hybrid deployments, advanced autoscaling (KEDA, HPA, VPA).', antiPattern:'$73/month cluster fee even at zero workloads. Higher operational complexity than ECS. Avoid unless you specifically need Kubernetes.', costNote:'$0.10/cluster-hour ($73/month) + worker node costs. Managed node groups simplify operations.' },
+  RDS:    { monthly:50,  whenToUse:'Relational data with complex joins, ACID transactions, reporting. Multi-AZ for HA, Read Replicas for read scaling.', antiPattern:"Don't use for simple key-value lookups (use DynamoDB) or unstructured JSON (use DocumentDB). Higher cost at massive scale.", costNote:'db.t3.medium: $50/month On-Demand. Multi-AZ doubles price. 1yr Reserved saves ~40%.' },
+  DYNAMO: { monthly:25,  whenToUse:'Serverless NoSQL at any scale: gaming, IoT, user sessions, shopping carts, feature flags. Single-digit ms latency.', antiPattern:"No JOINs, no complex queries. Access patterns must be defined upfront — requires schema redesign from relational thinking.", costNote:'On-demand: $1.25/million reads + writes. Provisioned is 50%+ cheaper at stable, predictable load. Free tier: 25GB + 25 WCU/RCU.' },
+  AURORA: { monthly:100, whenToUse:'High-performance MySQL/PostgreSQL workloads needing speed + scale. Up to 15 read replicas. Aurora Global Database for multi-region.', antiPattern:'No free tier for provisioned. Minimum ~$100/month. Use Aurora Serverless v2 for variable or intermittent workloads.', costNote:'$0.10/hour per ACU + $0.20/million I/O. Aurora Serverless v2 scales 0.5–128 ACUs, pauses when idle.' },
+  DOCDB:  { monthly:60,  whenToUse:'MongoDB-compatible document store. Best for migrating existing MongoDB 3.6/4.0 applications to AWS.', antiPattern:'Not fully compatible with MongoDB 4.4+. Not a true drop-in replacement for newer MongoDB APIs. Can\'t run on Fargate.', costNote:'$0.277/hour per instance. Separate storage + I/O charges. No free tier.' },
+  CACHE:  { monthly:25,  whenToUse:'Application caching (Redis for persistence/Pub-Sub, Memcached for simple), session storage, real-time leaderboards.', antiPattern:'Redis vs Memcached: Redis is almost always preferred — persistence, replication, richer data structures, Pub/Sub support.', costNote:'cache.t3.medium: $25/month. Cluster mode enables horizontal sharding. Redis adds replication for Multi-AZ HA.' },
+  DAX:    { monthly:40,  whenToUse:'DynamoDB read acceleration to microseconds. Hot-partition mitigation. Read-heavy apps needing DynamoDB speed boost.', antiPattern:"Only for DynamoDB reads — doesn't cache writes or transactional reads. Costly at low scale; justify only at high read rates.", costNote:'dax.t3.small: $40/month. Production Multi-AZ cluster ($120+/month) required for HA.' },
+  S3:     { monthly:8,   whenToUse:'Object storage: static sites, backups, data lakes, ML datasets, log archiving, media files. Unlimited scale, 11 nines durability.', antiPattern:"Don't use S3 for database-like operations or frequently-updated files — use EBS or EFS instead.", costNote:'$0.023/GB-month Standard. Intelligent-Tiering auto-moves infrequent objects. Glacier = $0.004/GB for archival.' },
+  EFS:    { monthly:20,  whenToUse:'Shared POSIX file system for concurrent EC2/ECS/Lambda access. Lift-and-shift Linux NFS workloads requiring shared storage.', antiPattern:'13× more expensive than S3 ($0.30 vs $0.023/GB). Never use EFS as object storage or for single-instance file access (use EBS).', costNote:'$0.30/GB-month Standard. EFS One Zone is 47% cheaper. EFS IA saves cost for rarely-accessed files.' },
+  SQS:    { monthly:5,   whenToUse:'Async decoupling, work queues, spike buffering, dead-letter queues. FIFO for ordered exactly-once delivery.', antiPattern:'Standard = at-least-once delivery (may duplicate messages). FIFO max 3,000 TPS — not for extremely high throughput without batching.', costNote:'$0.40/million requests. First 1M free/month. FIFO is ~10× the cost of Standard. Extremely cost-effective overall.' },
+  SNS:    { monthly:3,   whenToUse:'Fan-out pub/sub: trigger multiple Lambda/SQS/HTTP subscribers from one event. Mobile push, SMS, email notifications.', antiPattern:"SNS alone has no message durability — always pair SNS → SQS for the durable fan-out pattern.", costNote:'$0.50/million notifications. First 1M free/month. SMS extra. FIFO SNS available for ordered fan-out.' },
+  KINESIS:{ monthly:30,  whenToUse:'Ordered, replayable real-time streams: IoT, clickstream analytics, log aggregation. Kinesis Firehose for S3/Redshift delivery.', antiPattern:"SQS is simpler + cheaper if you don't need ordering, replay, or real-time analytics. Kinesis requires shard management.", costNote:'$0.015/shard-hour (~$11/shard-month). Extended retention (7 days) and Enhanced Fan-Out cost extra.' },
+  SAGE:   { monthly:200, whenToUse:'Custom ML model training, managed Jupyter notebooks, SageMaker Studio, A/B testing endpoints, MLOps pipelines.', antiPattern:'Use pre-built AI services (Rekognition, Comprehend, Translate) for standard tasks — much cheaper than custom SageMaker training.', costNote:'ml.m5.xlarge endpoint: ~$200/month. Serverless Inference scales to zero. Training jobs charged per second of compute.' },
+  OPENSEARCH:{ monthly:80,  whenToUse:'Full-text search, log analytics (ELK stack migration), observability dashboards, SIEM, OpenSearch Dashboards.', antiPattern:"Don't run OpenSearch for simple string matching on small datasets — RDS LIKE or DynamoDB filter expressions are sufficient.", costNote:'r6g.large.search: ~$80/month. OpenSearch Serverless available (min 2 OCUs = $175+/month). Separate storage costs.' },
+  GUARDDUTY: { monthly:5,   whenToUse:'Threat detection: crypto-mining, C2 callbacks, anomalous API calls, port scans. Ingests CloudTrail + VPC Flow Logs + DNS logs automatically.', antiPattern:"GuardDuty detects threats — it doesn't block them. Pair with Lambda automation or Security Hub for automated response.", costNote:'$4/million events. 30-day FREE trial. ~$5–100+/month at production scale. Highly cost-effective for threat visibility.' },
+  KMS:        { monthly:3,   whenToUse:'Encrypt-at-rest: S3 (SSE-KMS), RDS, EBS, DynamoDB, Secrets Manager. CMK gives full key policy control + CloudTrail audit trail on every decrypt.', antiPattern:'AWS Managed Keys (aws/s3) are free and auto-rotate but offer no key policy control. CMKs cost $1/month/key — usually worth it for regulated workloads.', costNote:'$1/CMK/month + $0.03/10,000 API calls. Envelope encryption makes per-request cost minimal. CloudHSM = FIPS 140-2 Level 3 dedicated hardware.' },
+  CLOUDTRAIL: { monthly:2,   whenToUse:'API audit log: WHO did WHAT at WHEN from WHERE. Required for HIPAA, PCI-DSS, SOC2. Enable org-level trail + S3 data events for full coverage.', antiPattern:"CloudTrail logs API calls, not OS/application logs (use CloudWatch Agent for those). Enable log file integrity validation to detect tampering.", costNote:'Management events: FREE (first copy per region). Data events: $0.10/100K events. Use a separate S3 log-archive account for tamper-proof storage.' },
+  GLOBALACCEL:{ monthly:35,  whenToUse:'TCP/UDP apps needing static anycast IPs, <30s failover, AWS backbone routing: gaming, financial APIs, VoIP, IoT. Not HTTP-caching.', antiPattern:"Not a CDN — doesn't cache content. For HTTP caching use CloudFront. Global Accelerator = static IPs + TCP/UDP + instant failover, NOT HTTP layer caching.", costNote:'$0.025/hour ($18/month) per accelerator + $0.015/GB data. More expensive than Route 53 DNS but instant failover vs DNS TTL propagation delay.' },
+};
+
+// ─── Quiz Question Pool (tagged by exam, shown randomly per wave) ─
+const QUIZ_QUESTIONS = [
+  // ── Wave 1 ──────────────────────────────────────────────────
+  { wave:1, reward:50, exam:'SAA',
+    q:'Static assets (images, CSS, JS) cause high global latency. Which combination minimises latency AND reduces origin load cost?',
+    opts:['ALB + EC2','CloudFront + S3','API Gateway + Lambda','NLB + ECS'],
+    ans:1,
+    expl:'✅ CloudFront caches at 450+ edge PoPs worldwide. S3 is a cheap durable origin. A >70% cache-hit rate dramatically reduces origin requests. SAA-C03: S3 + CloudFront = canonical static content delivery answer.' },
+  { wave:1, reward:50, exam:'SCS',
+    q:'An S3 bucket containing confidential data must NEVER be accidentally made public, even by a future admin. Most effective preventive control?',
+    opts:['S3 bucket ACL set to private','S3 Versioning enabled','S3 Block Public Access at the account level','Bucket policy with explicit Deny'],
+    ans:2,
+    expl:'✅ S3 Block Public Access at the ACCOUNT level is a preventive guardrail that overrides any future bucket/object ACL or policy granting public access. SCS-C02: Enable this org-wide via AWS Organizations SCPs — it\'s the AWS-recommended default for all accounts.' },
+  { wave:1, reward:50, exam:'SAA',
+    q:'An EC2 instance in a private subnet needs outbound internet access for OS patches. No public IP assigned. What is the simplest managed solution?',
+    opts:['Attach an Internet Gateway to the VPC','Deploy a NAT Gateway in a public subnet','Use a Bastion Host','Enable VPC Peering to a public VPC'],
+    ans:1,
+    expl:'✅ NAT Gateway (placed in a public subnet) allows private instances to initiate outbound internet connections without being directly reachable from the internet. SAA-C03: NAT GW = managed, HA within AZ, no patching. Internet Gateway alone does nothing for instances without a public IP.' },
+
+  // ── Wave 2 ──────────────────────────────────────────────────
+  { wave:2, reward:60, exam:'SAP',
+    q:'RDS primary is at 90% CPU from read queries. Scale reads WITHOUT changing application connection strings. Fastest solution?',
+    opts:['Upgrade RDS instance (vertical scale)','Add RDS Read Replica','Migrate to Aurora','Add ElastiCache in front'],
+    ans:1,
+    expl:'✅ RDS Read Replicas offload SELECT queries via async replication. Point read traffic to the replica endpoint. SAP-C02: Multi-AZ = HA/failover (synchronous standby). Read Replica = read scaling (async, separate endpoint). Key exam distinction.' },
+  { wave:2, reward:55, exam:'SAA',
+    q:'Your RDS Multi-AZ instance is in us-east-1a. What happens to your application during an AZ failure?',
+    opts:['Application fails until manual failover','RDS auto-fails over to standby (~60-120s)','Read replicas automatically promote','No failover — data is only in one AZ'],
+    ans:1,
+    expl:'✅ RDS Multi-AZ uses synchronous replication to a standby in another AZ. On failure, RDS auto-fails over in ~1–2 minutes — no manual action needed. Read Replicas use ASYNC replication and are NOT a failover mechanism. SAA-C03: Multi-AZ = HA. Read Replica = read throughput.' },
+  { wave:2, reward:55, exam:'SCS',
+    q:'A security team needs to know who deleted an S3 object containing financial records 3 months ago. Which service provides this?',
+    opts:['Amazon CloudWatch Logs','AWS CloudTrail (with S3 data events enabled)','S3 Server Access Logs','AWS Config'],
+    ans:1,
+    expl:'✅ CloudTrail records ALL AWS API calls — who, from which IP, at what time. S3 data events (s3:DeleteObject) must be explicitly enabled. SCS-C02: CloudTrail = API audit log (who called what). Config = resource configuration compliance (what changed). Both are exam staples.' },
+
+  // ── Wave 3 ──────────────────────────────────────────────────
+  { wave:3, reward:50, exam:'SAA',
+    q:'DynamoDB table needs sub-millisecond read latency for hot items with minimal code changes. What is the right caching layer?',
+    opts:['ElastiCache Redis','DynamoDB DAX','CloudFront','RDS Read Replica'],
+    ans:1,
+    expl:'✅ DAX provides microsecond DynamoDB reads via in-path caching with a DAX-compatible SDK swap — minimal code change. ElastiCache works for any store but requires custom cache-aside logic. SAA-C03: DAX = DynamoDB ONLY accelerator. For any other DB, use ElastiCache.' },
+  { wave:3, reward:55, exam:'SCS',
+    q:'EC2 application needs to access an S3 bucket. Which approach follows AWS least-privilege best practice?',
+    opts:['Embed AWS Access Key + Secret in application code','Store credentials in a .env file on the instance','Attach an IAM Role to the EC2 instance with an S3 read policy','Create an IAM User and pass key via environment variables'],
+    ans:2,
+    expl:'✅ IAM Roles for EC2 provide temporary, auto-rotating credentials via the instance metadata service (IMDS v2). No long-lived keys to manage or accidentally expose. SCS-C02: NEVER use long-lived access keys in code or config — always prefer IAM Roles for EC2, Lambda, ECS, and EKS workloads.' },
+  { wave:3, reward:50, exam:'SAA',
+    q:'An Application Load Balancer needs to route /api/* to one target group and /static/* to another. Which ALB feature enables this?',
+    opts:['Host-based routing rules','Path-based routing rules','Weighted target groups','Lambda@Edge URL rewriting'],
+    ans:1,
+    expl:'✅ ALB path-based routing rules match the URL path and forward to different target groups. Host-based routing uses the Host header (e.g., api.example.com vs static.example.com). SAA-C03: ALB = L7 intelligent routing. NLB = L4 TCP/UDP only, no path routing.' },
+
+  // ── Wave 4 ──────────────────────────────────────────────────
+  { wave:4, reward:55, exam:'SAA',
+    q:'Users upload videos up to 10GB to S3. Uploads fail mid-transfer. Which S3 feature is required?',
+    opts:['S3 Transfer Acceleration','S3 Multipart Upload','CloudFront PUT method','Direct Connect'],
+    ans:1,
+    expl:'✅ Multipart Upload splits large files into parallel parts (5MB–5GB each). Required for objects >5GB; recommended for >100MB. Improves reliability by allowing individual part retries. Transfer Acceleration accelerates upload speed using CloudFront edge PoPs. SAA-C03: Multipart Upload size thresholds are directly tested.' },
+  { wave:4, reward:55, exam:'SCS',
+    q:'A developer accidentally exposed an IAM access key in a public GitHub repo. What are the FIRST two steps?',
+    opts:['Change the IAM user password immediately','Deactivate the exposed key, then check CloudTrail for unauthorized activity','Delete the IAM user and recreate','Rotate all IAM keys in the account'],
+    ans:1,
+    expl:'✅ CONTAIN first: deactivate (don\'t delete yet) to stop ongoing misuse. INVESTIGATE second: use CloudTrail to audit what was done with that key. Finally create a new key. SCS-C02: Incident response = contain → investigate → remediate. Deactivate preserves audit evidence; delete removes it.' },
+  { wave:4, reward:55, exam:'SAP',
+    q:'Company needs to connect 30 VPCs across 4 AWS regions with centralized routing. Most scalable solution?',
+    opts:['VPC Peering between all VPCs (mesh)','AWS Transit Gateway with inter-region peering','VPN connections between all VPCs','Direct Connect with multiple VIFs'],
+    ans:1,
+    expl:'✅ Transit Gateway is a regional hub-and-spoke router. Inter-region TGW peering scales across regions. VPC Peering is NOT transitive — 30 VPCs = 435 peering connections (n*(n-1)/2), impossible to manage. SAP-C02: Transit Gateway = scalable multi-VPC networking. VPC Peering = simple two-VPC connectivity only.' },
+
+  // ── Wave 5 ──────────────────────────────────────────────────
+  { wave:5, reward:75, exam:'SAP',
+    q:'A 400Gbps UDP flood is targeting your infrastructure. WAF is not blocking it. What additional service is required?',
+    opts:['Upgrade WAF managed rules','AWS Shield Advanced','Amazon GuardDuty','AWS Firewall Manager'],
+    ans:1,
+    expl:'✅ WAF handles L7 HTTP/HTTPS attacks only. Shield Standard (FREE) covers basic L3/L4 automatically. Shield Advanced ($3K/month) adds enhanced L3/L4 volumetric DDoS protection, 24/7 DDoS Response Team (DRT), and cost-spike protection. SAP-C02: WAF = L7. Shield = L3/L4. Know the layer distinction.' },
+  { wave:5, reward:65, exam:'SCS',
+    q:'Encryption keys must be stored in dedicated FIPS 140-2 Level 3 validated hardware for regulatory compliance. Which service?',
+    opts:['AWS KMS with AWS Managed Keys','AWS KMS with Customer Managed Keys','AWS CloudHSM','AWS Secrets Manager'],
+    ans:2,
+    expl:'✅ CloudHSM provides dedicated, single-tenant HSM hardware meeting FIPS 140-2 Level 3. KMS default uses shared, multi-tenant HSMs (Level 2). KMS External Key Store can use CloudHSM as its backing store. SCS-C02: CloudHSM = dedicated physical HSM. KMS CMK = managed, software-backed key service. Know the difference.' },
+  { wave:5, reward:70, exam:'SCS',
+    q:'Database passwords must be automatically rotated every 30 days and securely retrieved by Lambda. Which service?',
+    opts:['SSM Parameter Store (Standard tier)','Hard-code in Lambda environment variables','AWS Secrets Manager with automatic rotation','Store in S3 with SSE-KMS encryption'],
+    ans:2,
+    expl:'✅ Secrets Manager has native Lambda rotation functions for RDS, Aurora, Redshift, and DocumentDB. Auto-rotates on schedule, zero downtime. SSM Parameter Store SecureString = cheaper, but no built-in auto-rotation. SAP/SCS: Secrets Manager = auto-rotation + full audit. Parameter Store = cost-effective, manual rotation.' },
+
+  // ── Wave 6 ──────────────────────────────────────────────────
+  { wave:6, reward:65, exam:'SAA',
+    q:'E-commerce needs full-text search with relevance scoring, faceted filters, and autocomplete across millions of products. Best choice?',
+    opts:['RDS with LIKE queries','DynamoDB Scan','Amazon OpenSearch Service','ElastiCache Redis'],
+    ans:2,
+    expl:'✅ OpenSearch supports TF/IDF relevance scoring, faceted aggregations, completion-suggester autocomplete, and near-real-time indexing. RDS LIKE is slow and unranked. DynamoDB Scan is O(n) and very expensive at scale. SAA-C03: OpenSearch = full-text search with relevance. DynamoDB = key-value/simple queries.' },
+  { wave:6, reward:65, exam:'SCS',
+    q:'Which AWS service continuously monitors for threats like crypto-mining, unusual API calls, and compromised EC2 instances using ML and threat intelligence?',
+    opts:['AWS Inspector','AWS Config','AWS GuardDuty','AWS Security Hub'],
+    ans:2,
+    expl:'✅ GuardDuty uses ML + threat intelligence feeds to analyze CloudTrail, VPC Flow Logs, and DNS logs for malicious activity. Inspector = vulnerability assessment (CVEs). Config = configuration compliance. Security Hub = aggregated findings dashboard. SCS-C02: GuardDuty = automated threat detection service.' },
+  { wave:6, reward:65, exam:'SAP',
+    q:'Company needs consistent 10Gbps dedicated bandwidth from on-premises to AWS with sub-10ms latency. Which connectivity?',
+    opts:['AWS Site-to-Site VPN over the public internet','AWS Direct Connect dedicated connection','AWS Client VPN','AWS Transit Gateway VPN attachment'],
+    ans:1,
+    expl:'✅ Direct Connect provides dedicated private network links at 1/10/100Gbps with consistent, low latency. VPN uses the public internet — bandwidth and latency fluctuate. SAP-C02: Direct Connect = consistent bandwidth + private link. VPN = encrypted but variable (internet-based). Direct Connect + VPN = backup resilience.' },
+
+  // ── Wave 7 ──────────────────────────────────────────────────
+  { wave:7, reward:70, exam:'SAA',
+    q:'App needs 50K logins/minute with Google/Facebook social login, MFA, and JWT issuance. Which AWS service handles this?',
+    opts:['IAM Identity Center (SSO)','Amazon Cognito User Pools','AWS Directory Service','API Gateway Lambda Authorizer'],
+    ans:1,
+    expl:'✅ Cognito User Pools handle sign-up/sign-in, MFA, social federation (Google, Facebook, Apple), OIDC/SAML, and JWT token issuance at scale. IAM Identity Center = internal workforce SSO. Directory Service = Active Directory. SAA-C03: Cognito = external customer identity (CIAM). IAM Identity Center = employee SSO.' },
+  { wave:7, reward:70, exam:'SCS',
+    q:'Security Hub shows "S3 bucket has Public Read Access Enabled." What compliance standard does this violate?',
+    opts:['Only NIST 800-53','AWS Foundational Security Best Practices (FSBP)','PCI-DSS only','This is not a security finding'],
+    ans:1,
+    expl:'✅ Security Hub maps findings to AWS Foundational Security Best Practices (FSBP), CIS AWS Foundations Benchmark, PCI-DSS, and NIST 800-53. A public S3 bucket violates FSBP S3.2 and CIS 2.3. SCS-C02: Security Hub = CSPM dashboard that aggregates GuardDuty, Inspector, Macie, Config findings + compliance mapping.' },
+  { wave:7, reward:70, exam:'SAP',
+    q:'A global TCP-based financial trading app needs static IPs, instant failover (<30s), and AWS backbone routing. NOT HTTP/HTTPS. Best choice?',
+    opts:['Amazon CloudFront','Route 53 with Latency Routing','AWS Global Accelerator','API Gateway Regional Endpoint'],
+    ans:2,
+    expl:'✅ Global Accelerator provides static anycast IPs + routes TCP/UDP over the AWS backbone. CloudFront = HTTP/HTTPS CDN only. Route 53 has DNS TTL delays (no instant failover). SAP-C02: Global Accelerator = static IPs + TCP/UDP + instant failover (<30s). CloudFront = HTTP caching CDN. Key differentiator.' },
+
+  // ── Wave 8 ──────────────────────────────────────────────────
+  { wave:8, reward:75, exam:'SAP',
+    q:'IoT devices send 2 million events/second. Events must be ordered per device, replayable for 7 days, queryable in real-time. Which service?',
+    opts:['Amazon SQS FIFO','Amazon SNS FIFO','Amazon Kinesis Data Streams','Amazon EventBridge'],
+    ans:2,
+    expl:'✅ Kinesis: ordered within shard, replayable (24hr–7 days), handles MB/s per shard. SQS FIFO max ~3,000 TPS — insufficient at 2M EPS. SQS cannot replay consumed messages. EventBridge = event routing, not high-throughput streaming. SAP-C02: Kinesis vs SQS decision tree is a top exam topic.' },
+  { wave:8, reward:75, exam:'SCS',
+    q:'Which service uses ML to automatically discover and protect sensitive data (PII, credit cards, SSNs) stored in S3 buckets?',
+    opts:['Amazon GuardDuty','Amazon Inspector','Amazon Macie','AWS Config'],
+    ans:2,
+    expl:'✅ Macie uses ML to scan S3 for PII, PHI, and financial data. It generates findings for publicly accessible buckets containing sensitive content. GuardDuty = threat detection. Inspector = vulnerability scanning (CVEs, CIS benchmarks). SCS-C02: Macie = S3 data privacy + sensitive data discovery.' },
+  { wave:8, reward:70, exam:'SAP',
+    q:'Lambda function processes SQS messages but some tasks take up to 13 minutes to complete. What configuration change is required?',
+    opts:['Increase Lambda memory to 10GB','Set Lambda timeout to 15 minutes (900s)','Enable Lambda Provisioned Concurrency','Switch to SQS FIFO queue'],
+    ans:1,
+    expl:'✅ Lambda max timeout = 15 minutes. For the SQS-Lambda pattern, the SQS visibility timeout must be at least 6× the Lambda timeout to prevent duplicate processing during retries. SAP-C02: Lambda limits to know — 15 min max timeout, 10GB max memory, 250MB deployment package, 1000 concurrent default.' },
+
+  // ── Wave 9 ──────────────────────────────────────────────────
+  { wave:9, reward:80, exam:'SAP',
+    q:'Real-time fraud detection needs ML model inference with <50ms latency on every transaction. Correct SageMaker endpoint mode?',
+    opts:['Batch Transform','Asynchronous Inference','Real-time Endpoint','Serverless Inference'],
+    ans:2,
+    expl:'✅ SageMaker Real-time Endpoints = synchronous, persistent, low-latency (<100ms) inference. Batch Transform = offline bulk scoring. Async Inference = long-running requests (minutes). Serverless = scales to zero, cold starts. SAP-C02: Know all 4 inference modes: Real-time, Batch Transform, Async, Serverless.' },
+  { wave:9, reward:80, exam:'SCS',
+    q:'An IAM policy grants s3:* on resource "*". An SCP denies s3:DeleteBucket. What happens when the user tries to delete a bucket?',
+    opts:['Delete succeeds — IAM policy explicitly allows s3:*','Delete is denied — SCPs set the max permissions boundary','SCP is ignored — SCPs only apply to the root account','Delete requires MFA regardless of policies'],
+    ans:1,
+    expl:'✅ SCPs set the maximum permissions for accounts in an organization. Even if the IAM policy grants s3:DeleteBucket, the SCP deny overrides it. Both IAM policy AND SCP must allow an action for it to succeed. SCS/SAP: SCPs = non-bypassable org-wide guardrails. IAM = account-level permissions.' },
+  { wave:9, reward:80, exam:'SAP',
+    q:'Company runs 1,000 EC2 instances 24/7 for 3 years. What pricing model provides the maximum savings?',
+    opts:['Spot Instances for all workloads','On-Demand with Auto Scaling','1-year No Upfront Reserved Instances','3-year All Upfront Reserved Instances or Compute Savings Plans'],
+    ans:3,
+    expl:'✅ 3-year All Upfront Reserved Instances or Compute Savings Plans provide 60–72% discount vs On-Demand for steady predictable workloads. Spot = 90% off but interruptible (not suitable for steady 24/7). 1-year RI = ~40% off. SAP-C02: Cost optimization — Reserved/Savings Plans for steady-state, Spot for fault-tolerant batch/ML.' },
+
+  // ── Wave 10 ──────────────────────────────────────────────────
+  { wave:10, reward:85, exam:'SAP',
+    q:'Global app must route users to the lowest-latency region AND auto-failover if a region goes unhealthy. Which Route 53 config?',
+    opts:['Weighted routing 50/50','Geolocation routing by country','Latency-based routing + Health Checks','Simple routing with low TTL'],
+    ans:2,
+    expl:'✅ Latency-based routing picks the lowest-latency region. Health Checks trigger automatic failover when that region becomes unhealthy. Geolocation = compliance/data residency use case. SAP-C02: Latency routing + Health Checks = HA + performance combo. Failover routing = binary primary/secondary only.' },
+  { wave:10, reward:85, exam:'SCS',
+    q:'EC2 instance in a private subnet connects to S3. Traffic must NOT traverse the public internet. Cheapest solution?',
+    opts:['Deploy a NAT Gateway for S3 access','Enable S3 Transfer Acceleration','Create a VPC Gateway Endpoint for S3','Use Direct Connect for all S3 traffic'],
+    ans:2,
+    expl:'✅ VPC Gateway Endpoints for S3 and DynamoDB are completely FREE — they route traffic within the AWS private network. NAT Gateway charges $0.045/GB processed. SCS/SAA: Gateway Endpoints = free private S3/DynamoDB access. Interface Endpoints (PrivateLink) = other AWS services, hourly + per-GB cost.' },
+  { wave:10, reward:85, exam:'SAP',
+    q:'Aurora MySQL needs to serve reads from 3 global regions with <100ms local latency. Solution?',
+    opts:['Aurora with 15 read replicas in one region','Aurora Global Database (up to 5 secondary regions)','Multi-AZ Aurora with cross-region read replicas','RDS MySQL with Multi-Region Read Replicas'],
+    ans:1,
+    expl:'✅ Aurora Global Database replicates data to up to 5 secondary regions with <1 second lag. Reads are served locally (<100ms). Regional failover (promotion) takes <1 minute. SAP-C02: Aurora Global Database = global reads + sub-minute RTO for regional failover. Standard read replicas are within a single region.' },
+
+  // ── Wave 11 ──────────────────────────────────────────────────
+  { wave:11, reward:80, exam:'SAA',
+    q:'Microservices need auto-scaling containers with zero cluster management overhead. Best AWS-native serverless container option?',
+    opts:['ECS on EC2 Auto Scaling','EKS Managed Node Groups','ECS on AWS Fargate','EKS on AWS Fargate'],
+    ans:2,
+    expl:'✅ ECS on Fargate = no cluster management, tasks auto-scale, pay per vCPU/memory used. EKS requires Kubernetes expertise. SAA-C03: Fargate removes EC2 management burden. Choose ECS Fargate unless you specifically need Kubernetes API compatibility (multi-cloud, existing K8s tooling).' },
+  { wave:11, reward:80, exam:'SCS',
+    q:'App in VPC-A needs to call an API hosted in VPC-B (different account) without internet exposure. Most secure solution?',
+    opts:['VPC Peering + Security Group rules','VPC Interface Endpoint (AWS PrivateLink) for the API service','Public ALB with IP allowlist','Transit Gateway with strict route tables'],
+    ans:1,
+    expl:'✅ PrivateLink (VPC Interface Endpoint) allows consumers to access services in other VPCs/accounts over the AWS private network — traffic never touches the internet and no peering/routing required on the consumer side. SCS/SAP: PrivateLink = private service consumption without peering or internet exposure.' },
+  { wave:11, reward:80, exam:'SAA',
+    q:'SQS queue needs guaranteed exactly-once message processing and strict FIFO ordering. Which queue type?',
+    opts:['SQS Standard Queue','SQS FIFO Queue','SQS with Dead Letter Queue','SNS → SQS Standard fan-out'],
+    ans:1,
+    expl:'✅ SQS FIFO guarantees exactly-once processing and strict ordering within a message group (up to 3,000 TPS with batching). Standard = at-least-once (possible duplicates), best-effort ordering. SAA-C03: FIFO = ordering + deduplication. Standard = higher throughput but no order guarantee.' },
+
+  // ── Wave 12 ──────────────────────────────────────────────────
+  { wave:12, reward:100, exam:'SCS',
+    q:'HIPAA workload: patient data in RDS needs encryption at rest + in transit + audit trail. Which combination is complete?',
+    opts:['RDS default encryption only','KMS CMK (at-rest) + TLS/SSL (in-transit) + CloudTrail (audit)','WAF + Shield + Cognito','S3 SSE-S3 + VPC isolation only'],
+    ans:1,
+    expl:'✅ HIPAA requires: encryption at rest (KMS CMK for key ownership + audit), encryption in transit (TLS), audit logging (CloudTrail captures all KMS + RDS API calls). KMS CMK gives full key control. IAM + private VPC subnets = access control. SAP/SCS: HIPAA = encryption + audit + access control — all three required.' },
+  { wave:12, reward:100, exam:'SAP',
+    q:'DR requirement: RPO=1hr, RTO=15min. Most cost-effective multi-region strategy?',
+    opts:['Multi-Site Active/Active (full replica running)','Warm Standby (scaled-down replica in secondary region)','Backup & Restore (S3 backups only)','Pilot Light (only databases running in secondary)'],
+    ans:1,
+    expl:'✅ Warm Standby = scaled-down functional copy always running. On failover, scale up and redirect traffic (~15 min RTO). Pilot Light = only DB running, compute off (longer RTO). Multi-Site = highest cost (full active). Backup & Restore = cheapest but hours-long RTO. SAP-C02: Know all 4 DR patterns and their RTO/RPO tradeoffs.' },
+  { wave:12, reward:100, exam:'SCS',
+    q:'AWS Inspector scan finds a critical CVE on 50 EC2 instances. Which service automatically remediates by applying patches?',
+    opts:['AWS Inspector (directly patches instances)','AWS Systems Manager Patch Manager','AWS Config with auto-remediation Lambda','AWS GuardDuty automated response'],
+    ans:1,
+    expl:'✅ SSM Patch Manager automates patching EC2 instances across fleets using maintenance windows or on-demand. Inspector identifies vulnerabilities; SSM Patch Manager remediates them. SCS-C02: Inspector = find vulnerabilities (CVEs, CIS). SSM Patch Manager = fix them. Standard AWS vulnerability management workflow.' },
+
+  // ── Wave 13 ──────────────────────────────────────────────────
+  { wave:13, reward:90, exam:'SCS',
+    q:'Security policy requires all IAM users to use MFA. Which service enforces this as a mandatory control that account admins cannot bypass?',
+    opts:['IAM Password Policy with MFA requirement','AWS Organizations SCP denying all API actions without MFA condition','Account-level IAM policy with DenyWithoutMFA','AWS Config rule with auto-remediation'],
+    ans:1,
+    expl:'✅ An SCP with Deny + Condition:aws:MultiFactorAuthPresent=false applies to ALL IAM entities in member accounts and cannot be overridden by account admins. IAM policies can be modified by admins. SCS/SAP: SCPs = non-bypassable org-level guardrails. Perfect for mandatory MFA enforcement at scale.' },
+  { wave:13, reward:90, exam:'SCS',
+    q:'VPC Flow Logs show unexpected outbound traffic to an unknown IP range. Which service automatically analyzes this and provides threat intelligence enrichment?',
+    opts:['CloudWatch Logs Insights (manual query)','AWS CloudTrail Lake','Amazon GuardDuty','Amazon Athena + S3'],
+    ans:2,
+    expl:'✅ GuardDuty automatically ingests VPC Flow Logs, DNS logs, and CloudTrail events, enriches with threat intelligence (known malicious IPs, C2 domains), and uses ML to identify crypto-mining, data exfiltration, and C2 callbacks. No manual querying needed. SCS-C02: GuardDuty = automated, ML-driven threat detection.' },
+  { wave:13, reward:85, exam:'SAP',
+    q:'What is the key difference between a Security Group and a Network ACL (NACL) in a VPC?',
+    opts:['Security Groups are stateless; NACLs are stateful','Security Groups are stateful; NACLs are stateless and require explicit inbound + outbound rules','NACLs apply to EC2 instances; Security Groups apply to subnets','Security Groups support DENY rules; NACLs only support ALLOW rules'],
+    ans:1,
+    expl:'✅ Security Groups are STATEFUL — return traffic is automatically allowed. NACLs are STATELESS — you must explicitly allow both inbound AND outbound rules. NACLs operate at the subnet level; Security Groups at the ENI/instance level. SAA/SAP: This stateful vs stateless distinction is tested in every exam.' },
+
+  // ── Wave 14 ──────────────────────────────────────────────────
+  { wave:14, reward:95, exam:'SAP',
+    q:'Lambda functions in a private subnet need to access DynamoDB and S3 without a NAT Gateway (to minimize cost). Solution?',
+    opts:['Move Lambda to a public subnet','VPC Gateway Endpoints for DynamoDB and S3 (free)','Deploy a NAT Instance (EC2) as cost-saving alternative','Lambda does not need VPC configuration for AWS service access'],
+    ans:1,
+    expl:'✅ VPC Gateway Endpoints for S3 and DynamoDB are completely FREE — Lambda traffic routes to these services over the AWS private network without NAT. NAT Gateway charges $0.045/GB, which adds up fast for Lambda → S3/DynamoDB traffic. SAP-C02: Gateway Endpoints = commonly tested cost optimization for VPC Lambda patterns.' },
+  { wave:14, reward:95, exam:'SCS',
+    q:'Auditors require ALL API calls to ALL production accounts logged and tamper-evident for 7 years. Which CloudTrail setup?',
+    opts:['Enable CloudTrail per region in the management account only','Organization Trail with log file integrity validation, logs delivered to a separate S3 archive account','Standard CloudTrail in each member account separately','Use VPC Flow Logs to capture all API activity'],
+    ans:1,
+    expl:'✅ Organization Trail automatically covers ALL member accounts + ALL regions. Log file integrity validation uses SHA-256 hashing — any tampering is detectable. A separate S3 archive account prevents deletion by compromised member accounts. SCS-C02: Org Trail + integrity validation + dedicated log archive = the compliant audit architecture.' },
+  { wave:14, reward:90, exam:'SAP',
+    q:'An existing MongoDB 3.6 application needs to migrate to AWS with minimal code changes. Which fully managed service?',
+    opts:['Amazon RDS for MySQL','Amazon DynamoDB','Amazon DocumentDB (MongoDB-compatible)','Amazon Aurora with PostgreSQL'],
+    ans:2,
+    expl:'✅ Amazon DocumentDB is compatible with MongoDB 3.6/4.0 API, allowing migration with minimal code changes. DynamoDB has a completely different API (NoSQL key-value). SAP-C02: DocumentDB = MongoDB migration path. Caveat: not fully compatible with MongoDB 4.4+ APIs — assess before migrating newer MongoDB versions.' },
+
+  // ── Wave 15 ──────────────────────────────────────────────────
+  { wave:15, reward:100, exam:'SCS',
+    q:'You want to give an intern limited ability to create Lambda functions using a specific IAM role, without the intern being able to grant themselves MORE permissions than that role has. Which IAM feature?',
+    opts:['IAM Condition keys on the existing role','IAM Permission Boundary on the intern\'s IAM user/role','Resource-based policy on the Lambda function','SCP in AWS Organizations'],
+    ans:1,
+    expl:'✅ Permission Boundaries set the maximum permissions an entity can grant when creating/modifying IAM entities. Even with iam:CreateRole, the intern cannot create roles with permissions exceeding the boundary. SCS-C02: Permission Boundaries = safe delegation of IAM management. Classic exam scenario for dev team empowerment with guardrails.' },
+  { wave:15, reward:100, exam:'SAP',
+    q:'Process 10TB of daily S3 data files with parallel distributed compute, no servers to manage, and jobs can be interrupted. Most cost-effective?',
+    opts:['EC2 On-Demand instances with Auto Scaling','AWS Glue ETL jobs','AWS Batch with Spot Instances','Lambda with SQS trigger (15 min max)'],
+    ans:2,
+    expl:'✅ AWS Batch with Spot Instances: auto-provisions compute, handles spot interruption retries, Spot saves 60–90% vs On-Demand. Ideal for large-scale batch workloads. Glue is managed Spark ETL (good for structured transforms but costlier per compute-hour). SAP-C02: Batch + Spot = cost-optimal large-scale parallel compute.' },
+  { wave:15, reward:100, exam:'SCS',
+    q:'S3 bucket encryption: which option gives your team FULL control over key rotation schedule and a complete CloudTrail audit log of every S3 decryption?',
+    opts:['SSE-S3 (AWS managed AES-256 keys)','SSE-KMS with a Customer Managed Key (CMK)','SSE-C (customer-provided key)','Client-side encryption before upload'],
+    ans:1,
+    expl:'✅ SSE-KMS with a CMK: you control rotation schedule, set key policies, and every encrypt/decrypt generates a CloudTrail event (who, when, what). SSE-S3 = AWS manages keys, no customer control, no per-operation audit. SSE-C = you supply key per request, more complex. SCS-C02: CMK = key control + full audit trail.' },
+
+  // ── Wave 16 ──────────────────────────────────────────────────
+  { wave:16, reward:100, exam:'SCS',
+    q:'A single dashboard showing findings from GuardDuty, Inspector, Macie, and AWS Config across all 50 accounts. Which service?',
+    opts:['Amazon CloudWatch dashboards','AWS Systems Manager Explorer','AWS Security Hub','AWS Trusted Advisor'],
+    ans:2,
+    expl:'✅ Security Hub aggregates, normalizes, and prioritizes findings from GuardDuty, Inspector, Macie, Config, Firewall Manager, and 3rd-party tools into one dashboard, mapped to compliance standards (CIS, PCI-DSS, FSBP, NIST 800-53). SCS-C02: Security Hub = CSPM + finding aggregation. Key service for multi-account security management.' },
+  { wave:16, reward:100, exam:'SAP',
+    q:'Multi-region active/active app needs sub-30-second global failover with NO DNS TTL propagation delays. Static IPs required. Which technology?',
+    opts:['Route 53 failover routing with 10s health check interval','AWS Global Accelerator with endpoint health checks','CloudFront with origin failover groups','ALB with cross-zone load balancing enabled'],
+    ans:1,
+    expl:'✅ Global Accelerator: health checks trigger failover in <30s via anycast IP rerouting — no DNS TTL delays. Route 53 failover has TTL-based DNS caching delays (60s+). CloudFront = HTTP CDN only. SAP-C02: Global Accelerator = instant anycast failover + static IPs. Route 53 = DNS-based routing (TTL delays apply). Know the distinction.' },
+  { wave:16, reward:100, exam:'SCS',
+    q:'IAM best practice: a new microservice on EC2 needs read access to DynamoDB. Which identity mechanism should be used?',
+    opts:['Create an IAM user, generate access keys, and set them as env variables','IAM Role attached to the EC2 instance profile with DynamoDB read policy','Store access keys in AWS Secrets Manager and retrieve at startup','Use the root account credentials for simplicity'],
+    ans:1,
+    expl:'✅ EC2 instance profiles (IAM Roles) provide auto-rotating temporary credentials via IMDSv2 — no long-lived keys needed. The application uses the AWS SDK which auto-fetches credentials from the metadata service. SCS-C02: Never use long-lived IAM user keys for EC2/Lambda/ECS workloads. IAM Roles = security best practice for all AWS compute.' },
+];
+
+// ─── Compliance checks (for security score panel) ─────────────
+const COMPLIANCE_CHECKS = [
+  { id:'waf',    label:'WAF (L7 Protection)', svc:['WAF'],                            standard:'PCI-DSS' },
+  { id:'ddos',   label:'DDoS Shield',         svc:['SHIELD','GUARDDUTY'],             standard:'SOC2' },
+  { id:'auth',   label:'Managed Auth',        svc:['COGNITO'],                        standard:'HIPAA' },
+  { id:'edge',   label:'Edge CDN / Accel',    svc:['CF','GLOBALACCEL'],               standard:'Perf' },
+  { id:'lb',     label:'Load Balancer (HA)',  svc:['ALB','NLB'],                      standard:'HA' },
+  { id:'db',     label:'Persistent Database', svc:['RDS','DYNAMO','AURORA','DOCDB'],  standard:'Data' },
+  { id:'cache',  label:'Caching Layer',       svc:['CACHE','DAX'],                    standard:'Perf' },
+  { id:'queue',  label:'Message Queue',       svc:['SQS','SNS','KINESIS'],            standard:'Resil.' },
+  { id:'threat', label:'Threat Detection',    svc:['GUARDDUTY'],                      standard:'SOC2' },
+  { id:'enckey', label:'Key Management',      svc:['KMS'],                            standard:'HIPAA' },
+  { id:'audit',  label:'Audit Logging',       svc:['CLOUDTRAIL'],                     standard:'PCI-DSS' },
+];
+
+// ─── Wave scenario labels (compliance/exam context) ───────────
+const WAVE_SCENARIOS = {
+  1: '📋 SAA Scenario: Basic web app. WAF → API GW → ALB → EC2 → RDS + S3.',
+  3: '💾 SAA Scenario: Write-heavy workload. SQS buffering + DynamoDB for writes.',
+  5: '💳 PCI-DSS: WAF + Shield required. SAP tip: Shield Standard is FREE (always on).',
+  7: '🏥 HIPAA: Cognito for patient auth. SCS tip: Cognito = external CIAM, not workforce SSO.',
+  9: '🤖 ML Workload: Only SageMaker handles ML traffic. SAP: Know all 4 inference modes.',
+  10:'🌐 Black Friday: Full compliance — PCI-DSS + HIPAA + SOC2. SAP: Aurora Global DB for multi-region.',
+  12:'🔐 Security Audit: All 11 compliance checks must pass. SCS: KMS CMK + CloudTrail = HIPAA/PCI.',
+  13:'🕵 SCS Zero-Trust: Add GuardDuty (threat detection) + KMS (encryption) for wave 13+.',
+  14:'📋 SCS Compliance Audit: CloudTrail Org Trail + integrity validation. GuardDuty + Security Hub.',
+  15:'🚨 SCS Data Breach: Permission Boundaries + PrivateLink + Macie = advanced security posture.',
+  16:'☠ SAP/SCS Perfect Storm: Global Accelerator + full security stack. No shortcuts survive.',
+};
+
+// ─── Difficulty settings ──────────────────────────────────────
+const DIFFICULTIES = {
+  easy:   { budget:800,  rpsBase:1.5, rpsGrow:1.5, waveLen:75, label:'Cloud Architect' },
+  normal: { budget:500,  rpsBase:2,   rpsGrow:2.5, waveLen:60, label:'Solutions Engineer' },
+  hard:   { budget:350,  rpsBase:3,   rpsGrow:3.5, waveLen:50, label:'Site Reliability' },
+  expert: { budget:200,  rpsBase:5,   rpsGrow:5,   waveLen:40, label:'Black Friday' },
+};
+
+// ═══════════════════════════════════════════════════════════════
+//  GAME STATE
+// ═══════════════════════════════════════════════════════════════
+let G = { tool: 'select', running: false, gameOver: false, paused: false, mode: 'survival', zoom: 1, panX: 0, panY: 0, nodes: [], links: [], packets: [], selNode: null, conSrc: null, hoverNode: null, hoverLink: null, dragging: null, isPanning: false, mouseX: 0, mouseY: 0, region: 'us-east-1', achievements: new Set(), milestones: [], eventLog: [], failures: {}, failRepLoss: {} };
+let DIFF = 'easy';
+
+function selDiff(el, diff) {
+  DIFF = diff;
+  document.querySelectorAll('.diff-card').forEach(c => c.classList.remove('sel'));
+  el.classList.add('sel');
+}
+
+function initState(mode) {
+  const dcfg = DIFFICULTIES[DIFF] || DIFFICULTIES.normal;
+  G = {
+    mode, diff: DIFF,
+    running: false, paused: false, gameOver: false,
+    budget: mode === 'sandbox' ? 9999 : dcfg.budget,
+    reputation: 100, maxRep: 100,
+    score: 0, elapsed: 0,
+    rps: mode === 'sandbox' ? 5 : dcfg.rpsBase,
+    rpsBase: dcfg.rpsBase, rpsGrow: dcfg.rpsGrow,
+    nodes: [], links: [], packets: [],
+    nid: 0, pid: 0,
+    failures: {}, failRepLoss: {},
+    attacksBlocked: 0, totalProcessed: 0, incomeTotal: 0,
+    autoRepair: false, upkeepEnabled: mode !== 'sandbox',
+    spawnTimer: 0,
+    surgeTimer: 40, surgeMultiplier: 1.0, surgeActive: false,
+    waveIdx: 0, waveTimer: 0, waveLen: dcfg.waveLen,
+    waveFailures: 0, wavePerfect: false,
+    tool: 'select', selNode: null, conSrc: null,
+    hoverNode: null, hoverLink: null,
+    dragging: null, dragOX: 0, dragOY: 0,
+    zoom: 1, panX: 0, panY: 0, isPanning: false, panStartX:0, panStartY:0,
+    mouseX: 0, mouseY: 0,
+    totalUpkeep: 0, totalIncome: 0,
+    achievements: new Set(), achProgress: {},
+    milestones: [],
+    repPerfectTimer: 0,
+    tipIdx: Math.floor(Math.random()*TIPS.length),
+    tipTimer: 15,
+    sbMix: 'normal',
+    region: 'us-east-1',
+    eventLog: [],
+    routedTypes: new Set(),
+  };
+  TTYPES.forEach(t => { G.failures[t] = 0; G.failRepLoss[t] = 0; });
+}
+
+// ─── Node helpers ──────────────────────────────────────────────
+function createNode(defId, wx, wy) {
+  const def = SDEFS.find(d => d.id === defId);
+  if (!def) return null;
+  if (G.budget < def.cost) { flashBudget(); showToast('⚠ Not enough budget!'); return null; }
+  G.budget -= def.cost;
+  const node = {
+    id: G.nid++, defId,
+    x: wx, y: wy,
+    health: 100, tier: 1,
+    load: 0, processed: 0,
+    queueLen: 0,
+    lastDmgTime: 0,
+    pulseT: Math.random() * Math.PI * 2,
+  };
+  G.nodes.push(node);
+  recalcUpkeep();
+  checkAch('first_node');
+  if (G.nodes.length >= 10) checkAch('ten_nodes');
+  const unique = new Set(G.nodes.map(n=>n.defId)).size;
+  if (unique >= 15) checkAch('all_services');
+  logEvent(`Deployed ${def.name}`);
+  return node;
+}
+
+function getDef(node) { return SDEFS.find(d => d.id === node.defId); }
+function getCapacity(node) {
+  const t = node.tier;
+  return Math.floor(getDef(node).cap * (t === 1 ? 1 : t === 2 ? 2.2 : 3.8));
+}
+function getUpgradeCost(node) {
+  const def = getDef(node);
+  return Math.floor(def.cost * [0.8, 1.4, 0][node.tier - 1]);
+}
+function upgradeNode(node) {
+  if (node.tier >= 3) { showToast('Already at max tier!'); return; }
+  const cost = getUpgradeCost(node);
+  if (G.budget < cost) { flashBudget(); showToast(`⚠ Need $${cost} to upgrade`); return; }
+  G.budget -= cost;
+  node.tier++;
+  recalcUpkeep();
+  logEvent(`Upgraded ${getDef(node).name} to T${node.tier}`);
+  if (node.tier === 3) checkAch('tier3_node');
+  showToast(`✅ ${getDef(node).name} → Tier ${node.tier}`);
+}
+function deleteNode(node) {
+  const refund = Math.floor(getDef(node).cost * 0.5);
+  G.budget += refund;
+  G.links = G.links.filter(l => l.from !== node.id && l.to !== node.id);
+  G.packets = G.packets.filter(p => p.nodeId !== node.id && p.nextNodeId !== node.id);
+  G.nodes = G.nodes.filter(n => n.id !== node.id);
+  if (G.selNode?.id === node.id) G.selNode = null;
+  recalcUpkeep();
+  showToast(`🗑 Removed. Refund: $${refund}`);
+}
+function repairNode(node) {
+  const cost = Math.max(5, Math.floor(getDef(node).cost * 0.12));
+  if (G.budget < cost) { flashBudget(); return; }
+  G.budget -= cost;
+  node.health = Math.min(100, node.health + 35);
+}
+function recalcUpkeep() {
+  G.totalUpkeep = G.nodes.reduce((s, n) => s + getDef(n).upkeep * n.tier, 0);
+}
+
+// ─── Link helpers ───────────────────────────────────────────────
+function addLink(fromId, toId) {
+  if (fromId === toId) return;
+  if (G.links.find(l => l.from === fromId && l.to === toId)) return;
+  G.links.push({ from: fromId, to: toId, flowPulse: 0 });
+}
+function removeLink(link) { G.links = G.links.filter(l => l !== link); }
+
+// ─── Packet routing ─────────────────────────────────────────────
+function getMix() {
+  if (G.mode === 'sandbox') {
+    const mixes = {
+      normal:  {ST:25,RD:25,WR:15,UP:10,SR:10,STR:5,DD:5,AUTH:3,ML:2},
+      ddos:    {ST:5,RD:10,WR:10,UP:5,SR:5,STR:5,DD:50,AUTH:5,ML:5},
+      reads:   {ST:15,RD:50,WR:10,UP:5,SR:10,STR:2,DD:5,AUTH:2,ML:1},
+      upload:  {ST:10,RD:15,WR:10,UP:50,SR:5,STR:2,DD:5,AUTH:2,ML:1},
+      stream:  {ST:5,RD:10,WR:10,UP:5,SR:5,STR:50,DD:5,AUTH:5,ML:5},
+    };
+    return mixes[G.sbMix] || mixes.normal;
+  }
+  return WAVES[Math.min(G.waveIdx, WAVES.length-1)].mix;
+}
+
+function spawnPacket() {
+  const mix = getMix();
+  let roll = Math.random() * Object.values(mix).reduce((a,b)=>a+b,0);
+  let type = 'ST';
+  for (const [t,v] of Object.entries(mix)) {
+    roll -= v;
+    if (roll <= 0) { type = t; break; }
+  }
+  const entryNodes = G.nodes.filter(n => !G.links.some(l => l.to === n.id));
+  if (entryNodes.length === 0) { failPacket(type); return; }
+  const entry = entryNodes[Math.floor(Math.random() * entryNodes.length)];
+  const spawnX = (-30 - G.panX) / G.zoom;
+  const spawnY = (CH * 0.15 + Math.random() * CH * 0.7 - G.panY) / G.zoom;
+  G.packets.push({
+    id: G.pid++, type,
+    nodeId: entry.id,
+    x: spawnX, y: spawnY,
+    tx: entry.x, ty: entry.y,
+    travelFrom: { x: spawnX, y: spawnY },
+    travelT: 0, travelDur: 0.45,
+    phase: 'traveling',
+    nextNodeId: entry.id,
+    path: [entry.id],
+    dropped: false,
+    age: 0,
+  });
+}
+
+function failPacket(type) {
+  G.failures[type]++;
+  const loss = TREPLOSS[type] || 1;
+  G.failRepLoss[type] += loss;
+  G.reputation = Math.max(0, G.reputation - loss);
+  G.waveFailures++;
+}
+
+function arriveAtNode(pkt) {
+  const node = G.nodes.find(n => n.id === pkt.nodeId);
+  if (!node) { pkt.dropped = true; return; }
+  const def = getDef(node);
+  const cap = getCapacity(node);
+
+  // Overload?
+  if (node.load >= cap) {
+    if (def.id !== 'SQS') {
+      failPacket(pkt.type);
+      node.health = Math.max(0, node.health - 3);
+      node.lastDmgTime = G.elapsed;
+    }
+    pkt.dropped = true;
+    return;
+  }
+
+  // WAF / Shield: block DDoS
+  if ((def.id === 'WAF' || def.id === 'SHIELD') && pkt.type === 'DD') {
+    G.attacksBlocked++;
+    G.score += 8;
+    G.budget += 0.5;
+    node.processed = (node.processed || 0) + 1;
+    if (G.attacksBlocked >= 100) checkAch('ddos_100');
+    pkt.dropped = true;
+    return;
+  }
+
+  // CloudFront cache hit
+  if (def.id === 'CF') {
+    const hitRates = [0.7, 0.82, 0.92];
+    if ((pkt.type === 'ST' || pkt.type === 'RD') && Math.random() < hitRates[node.tier-1]) {
+      completePacket(pkt, node);
+      return;
+    }
+  }
+
+  // ElastiCache cache hit
+  if (def.id === 'CACHE') {
+    const hr = [0.35,0.50,0.65][node.tier-1];
+    if ((pkt.type === 'ST' || pkt.type === 'RD') && Math.random() < hr) {
+      completePacket(pkt, node);
+      return;
+    }
+  }
+
+  // DAX near-instant READ
+  if (def.id === 'DAX' && pkt.type === 'RD') {
+    if (Math.random() < 0.9) {
+      completePacket(pkt, node);
+      return;
+    }
+  }
+
+  // APIGW rate limit
+  if (def.id === 'APIGW') {
+    const limits = [20,40,80];
+    if (node.load >= limits[node.tier-1]) {
+      G.reputation = Math.max(0, G.reputation - 0.15);
+      G.waveFailures++;
+      pkt.dropped = true;
+      return;
+    }
+  }
+
+  // SNS: fan-out to all outputs
+  if (def.id === 'SNS') {
+    const outs = G.links.filter(l => l.from === node.id);
+    if (outs.length === 0) { failPacket(pkt.type); pkt.dropped = true; return; }
+    // Clone to all outputs
+    outs.forEach((link, i) => {
+      if (i === 0) {
+        forwardPacket(pkt, node, link.to);
+      } else {
+        const clone = { ...pkt, id: G.pid++, path: [...pkt.path] };
+        clone.travelT = 0;
+        forwardPacket(clone, node, link.to);
+        G.packets.push(clone);
+      }
+    });
+    return;
+  }
+
+  // Does node handle this type?
+  if (!def.handles.includes(pkt.type)) {
+    const outs = G.links.filter(l => l.from === node.id);
+    if (outs.length === 0) { failPacket(pkt.type); pkt.dropped = true; return; }
+    // Pick random output
+    const link = outs[Math.floor(Math.random() * outs.length)];
+    forwardPacket(pkt, node, link.to);
+    return;
+  }
+
+  // Node handles it — start processing
+  node.load++;
+  const procTime = getDef(node).procMs / (node.tier * 1000);
+  pkt.phase = 'processing';
+  pkt.procNode = node.id;
+  pkt.procTimer = procTime;
+}
+
+function forwardPacket(pkt, fromNode, toNodeId) {
+  if (!toNodeId) {
+    const outs = G.links.filter(l => l.from === fromNode.id);
+    if (outs.length === 0) { failPacket(pkt.type); pkt.dropped = true; return; }
+    toNodeId = outs[Math.floor(Math.random() * outs.length)].to;
+  }
+  if (pkt.path.includes(toNodeId)) { failPacket(pkt.type); pkt.dropped = true; return; }
+  const toNode = G.nodes.find(n => n.id === toNodeId);
+  if (!toNode) { failPacket(pkt.type); pkt.dropped = true; return; }
+  pkt.path.push(toNodeId);
+  pkt.nextNodeId = toNodeId;
+  pkt.travelFrom = { x: pkt.x, y: pkt.y };
+  pkt.tx = toNode.x; pkt.ty = toNode.y;
+  pkt.travelT = 0; pkt.travelDur = 0.3;
+  pkt.phase = 'traveling';
+  // Pulse the link
+  const link = G.links.find(l => l.from === fromNode.id && l.to === toNodeId);
+  if (link) link.flowPulse = 1;
+}
+
+function completePacket(pkt, node) {
+  if (node) {
+    node.load = Math.max(0, node.load);
+    node.processed = (node.processed || 0) + 1;
+  }
+  const income = TINCOME[pkt.type] || 0;
+  G.budget += income;
+  G.incomeTotal += income;
+  G.score += Math.ceil(income * 15);
+  G.totalProcessed++;
+  G.routedTypes.add(pkt.type);
+  if (G.routedTypes.size >= 6) checkAch('full_route');
+  if (G.totalProcessed >= 500) checkAch('proc_500');
+  if (G.incomeTotal >= 1000) checkAch('budget_1000');
+  pkt.dropped = true;
+}
+
+// ─── Game Loop ──────────────────────────────────────────────────
+let lastTs = 0, animId;
+
+function gameLoop(ts) {
+  animId = requestAnimationFrame(gameLoop);
+  if (!G.running || G.gameOver) { render(); return; }
+  if (G.paused) { render(); return; }
+
+  const dt = Math.min((ts - lastTs) / 1000, 0.08);
+  lastTs = ts;
+  G.elapsed += dt;
+
+  // Upkeep drain
+  if (G.upkeepEnabled) {
+    G.budget -= G.totalUpkeep * dt;
+    if (G.budget < -1000) { triggerGameOver('Budget depleted ($-1000)'); return; }
+  }
+
+  // Rolling income rate (3-second window)
+  G._incomeWindow = G._incomeWindow || [];
+  G._incomeWindowStart = G._incomeWindowStart || G.elapsed;
+  const windowIncome = G.incomeTotal - (G._lastWindowIncome || 0);
+  const windowDur = G.elapsed - G._incomeWindowStart;
+  if (windowDur >= 3) {
+    G.totalIncome = windowIncome / windowDur;
+    G._lastWindowIncome = G.incomeTotal;
+    G._incomeWindowStart = G.elapsed;
+  }
+
+  // Auto repair
+  if (G.autoRepair) {
+    G.nodes.forEach(n => {
+      if (n.health < 100) {
+        const rate = getDef(n).cost * 0.08 / 60;
+        if (G.budget >= rate * dt) {
+          G.budget -= rate * dt;
+          n.health = Math.min(100, n.health + rate * dt * 10);
+        }
+      }
+    });
+  }
+
+  // Surge system
+  G.surgeTimer -= dt;
+  if (G.surgeTimer <= 0) {
+    G.surgeMultiplier = 1.5 + Math.random() * 2.5;
+    G.surgeActive = true;
+    G.surgeTimer = 25 + Math.random() * 35;
+    showEvent(`⚡ Traffic surge ×${G.surgeMultiplier.toFixed(1)}!`);
+    logEvent(`Traffic surge ×${G.surgeMultiplier.toFixed(1)}`);
+    setTimeout(() => { G.surgeMultiplier = 1; G.surgeActive = false; }, 7000);
+  }
+
+  // Wave system (survival)
+  if (G.mode === 'survival') {
+    G.waveTimer += dt;
+    const wave = WAVES[Math.min(G.waveIdx, WAVES.length-1)];
+    const wl = DIFFICULTIES[G.diff].waveLen;
+    document.getElementById('waveProgress').style.width = Math.min(G.waveTimer / wl * 100, 100) + '%';
+    document.getElementById('wave-fill').style.width = Math.min(G.waveTimer / wl * 100, 100) + '%';
+    G.rps = wave.rps * (1 + (G.waveTimer / wl) * 0.5);
+    if (G.waveTimer >= wl) {
+      // Check wave perfect
+      if (G.waveFailures === 0 && G.waveIdx > 0) checkAch('no_fail_wave');
+      G.waveIdx++;
+      G.waveTimer = 0;
+      G.waveFailures = 0;
+      if (G.waveIdx >= WAVES.length) {
+        // WIN!
+        triggerGameOver('ALL WAVES SURVIVED — YOU WIN!', true);
+        return;
+      }
+      if (G.waveIdx >= 5)  checkAch('wave5');
+      if (G.waveIdx >= 10) checkAch('wave10');
+      if (G.waveIdx >= 15) checkAch('wave15');
+      announceWave(WAVES[G.waveIdx]);
+      logEvent(`Wave ${G.waveIdx+1}: ${WAVES[G.waveIdx].label}`);
+    }
+  }
+
+  // RPS for sandbox from slider
+  if (G.mode === 'sandbox') {
+    G.rps = parseFloat(document.getElementById('sbRps').value) || 5;
+  }
+
+  // Spawn packets
+  G.spawnTimer -= dt;
+  const effRps = G.rps * G.surgeMultiplier;
+  if (G.spawnTimer <= 0 && G.running) {
+    G.spawnTimer = 1 / effRps;
+    spawnPacket();
+  }
+
+  // Update packets
+  G.packets = G.packets.filter(p => !p.dropped);
+  for (let i = 0; i < G.packets.length; i++) {
+    const pkt = G.packets[i];
+    pkt.age += dt;
+    if (pkt.age > 30) { pkt.dropped = true; continue; } // timeout
+
+    if (pkt.phase === 'traveling') {
+      pkt.travelT += dt;
+      const t = Math.min(pkt.travelT / pkt.travelDur, 1);
+      const et = easeInOut(t);
+      pkt.x = pkt.travelFrom.x + (pkt.tx - pkt.travelFrom.x) * et;
+      pkt.y = pkt.travelFrom.y + (pkt.ty - pkt.travelFrom.y) * et;
+      if (t >= 1) {
+        pkt.x = pkt.tx; pkt.y = pkt.ty;
+        pkt.nodeId = pkt.nextNodeId;
+        pkt.phase = 'atNode';
+        arriveAtNode(pkt);
+      }
+    } else if (pkt.phase === 'processing') {
+      pkt.procTimer -= dt;
+      if (pkt.procTimer <= 0) {
+        const node = G.nodes.find(n => n.id === pkt.procNode);
+        if (node) node.load = Math.max(0, node.load - 1);
+        const outs = G.links.filter(l => l.from === pkt.procNode);
+        if (outs.length > 0) {
+          forwardPacket(pkt, node || { id: pkt.procNode, x: pkt.x, y: pkt.y }, outs[Math.floor(Math.random()*outs.length)].to);
+        } else {
+          const def = node ? getDef(node) : null;
+          if (def && def.handles.includes(pkt.type)) {
+            completePacket(pkt, node);
+          } else {
+            failPacket(pkt.type);
+            pkt.dropped = true;
+          }
+        }
+      }
+    }
+  }
+
+  // Link pulse decay
+  G.links.forEach(l => { if (l.flowPulse > 0) l.flowPulse -= dt * 3; });
+
+  // Node pulse
+  G.nodes.forEach(n => { n.pulseT += dt * 2; });
+
+  // Reputation perfect tracking
+  if (G.reputation >= 99.9) {
+    G.repPerfectTimer += dt;
+    if (G.repPerfectTimer >= 120) checkAch('rep_100');
+    if (G.attacksBlocked >= 200) checkAch('threat_hunter');
+  } else {
+    G.repPerfectTimer = 0;
+  }
+
+  // Tip rotation
+  G.tipTimer -= dt;
+  if (G.tipTimer <= 0) {
+    G.tipIdx = (G.tipIdx + 1) % TIPS.length;
+    G.tipTimer = 15;
+    document.getElementById('tipBox').innerHTML = `💡 ${TIPS[G.tipIdx]}`;
+  }
+
+  if (G.reputation <= 0) { triggerGameOver('Reputation collapsed to 0%'); return; }
+
+  updateHUD();
+  render();
+}
+
+function easeInOut(t) { return t < .5 ? 2*t*t : -1+(4-2*t)*t; }
+
+// ─── RENDER ────────────────────────────────────────────────────
+const NR = 32; // node radius
+
+function render() {
+  ctx.clearRect(0, 0, CW, CH);
+  ctx.save();
+  // Apply pan+zoom
+  ctx.translate(G.panX, G.panY);
+  ctx.scale(G.zoom, G.zoom);
+
+  // Draw links
+  G.links.forEach(drawLink);
+
+  // Connect preview
+  if (G.tool === 'connect' && G.conSrc !== null) {
+    const src = G.nodes.find(n => n.id === G.conSrc);
+    if (src) {
+      const mx = (G.mouseX - G.panX) / G.zoom;
+      const my = (G.mouseY - G.panY) / G.zoom;
+      ctx.save();
+      ctx.strokeStyle = '#FF990066';
+      ctx.lineWidth = 1.5 / G.zoom;
+      ctx.setLineDash([5, 4]);
+      ctx.beginPath();
+      ctx.moveTo(src.x, src.y);
+      ctx.lineTo(mx, my);
+      ctx.stroke();
+      ctx.restore();
+    }
+  }
+
+  // Draw nodes
+  G.nodes.forEach(drawNode);
+
+  // Draw packets
+  G.packets.forEach(pkt => {
+    if (pkt.phase === 'atNode' || pkt.dropped) return;
+    const col = TCOLORS[pkt.type] || '#fff';
+    ctx.save();
+    ctx.fillStyle = col;
+    ctx.shadowColor = col;
+    ctx.shadowBlur = 7 / G.zoom;
+    ctx.beginPath();
+    ctx.arc(pkt.x, pkt.y, 4 / G.zoom, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  });
+
+  ctx.restore();
+}
+
+function drawLink(link) {
+  const a = G.nodes.find(n => n.id === link.from);
+  const b = G.nodes.find(n => n.id === link.to);
+  if (!a || !b) return;
+  const isHover = G.hoverLink === link;
+  const pulse = Math.max(0, link.flowPulse || 0);
+  const lw = (1.5 + pulse * 2) / G.zoom;
+
+  ctx.save();
+  ctx.strokeStyle = isHover ? '#ff5050' : `rgba(30,100,180,${0.5 + pulse * 0.5})`;
+  ctx.lineWidth = lw;
+  ctx.setLineDash(isHover ? [] : [7, 5]);
+  ctx.beginPath();
+  // Bezier for nicer curves
+  const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+  const dx = b.x - a.x, dy = b.y - a.y;
+  const nx = -dy * 0.15, ny = dx * 0.15;
+  ctx.moveTo(a.x, a.y);
+  ctx.quadraticCurveTo(mx + nx, my + ny, b.x, b.y);
+  ctx.stroke();
+
+  // Arrowhead
+  const angle = Math.atan2(b.y - (my+ny), b.x - (mx+nx));
+  const d = NR + 4;
+  const ax = b.x - Math.cos(angle) * d;
+  const ay = b.y - Math.sin(angle) * d;
+  ctx.setLineDash([]);
+  ctx.fillStyle = isHover ? '#ff5050' : `rgba(30,100,180,${0.7 + pulse * 0.3})`;
+  ctx.beginPath();
+  ctx.moveTo(ax, ay);
+  ctx.lineTo(ax - (9/G.zoom)*Math.cos(angle-0.42), ay - (9/G.zoom)*Math.sin(angle-0.42));
+  ctx.lineTo(ax - (9/G.zoom)*Math.cos(angle+0.42), ay - (9/G.zoom)*Math.sin(angle+0.42));
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawNode(node) {
+  const def = getDef(node);
+  const isSel = G.selNode?.id === node.id;
+  const isHov = G.hoverNode?.id === node.id;
+  const isConSrc = G.conSrc === node.id;
+  const hp = node.health / 100;
+  const loadPct = Math.min(node.load / getCapacity(node), 1);
+  const pulse = Math.sin(node.pulseT) * 0.5 + 0.5;
+
+  ctx.save();
+
+  // Outer glow
+  if (isSel || isConSrc) {
+    ctx.shadowColor = isConSrc ? '#FF9900' : '#00d4ff';
+    ctx.shadowBlur = 24 / G.zoom;
+  } else if (isHov) {
+    ctx.shadowColor = def.color;
+    ctx.shadowBlur = 16 / G.zoom;
+  } else if (loadPct > 0.8) {
+    ctx.shadowColor = '#ff4040';
+    ctx.shadowBlur = (8 + pulse * 8) / G.zoom;
+  }
+
+  // Node body gradient
+  const g = ctx.createRadialGradient(node.x, node.y - 4/G.zoom, 2, node.x, node.y, NR);
+  g.addColorStop(0, hexA(def.color, 0.35));
+  g.addColorStop(1, hexA(def.color, 0.07));
+  ctx.fillStyle = g;
+  ctx.beginPath();
+  ctx.arc(node.x, node.y, NR, 0, Math.PI*2);
+  ctx.fill();
+
+  // Border
+  ctx.strokeStyle = isSel || isConSrc ? '#FF9900' : def.color + (isSel ? 'ff' : 'bb');
+  ctx.lineWidth = (isSel ? 2.5 : 1.5) / G.zoom;
+  ctx.setLineDash([]);
+  ctx.stroke();
+
+  // Health ring (outer)
+  ctx.strokeStyle = hpColor(hp);
+  ctx.lineWidth = 3 / G.zoom;
+  ctx.beginPath();
+  ctx.arc(node.x, node.y, NR + 5/G.zoom, -Math.PI/2, -Math.PI/2 + Math.PI*2*hp);
+  ctx.stroke();
+
+  // Load ring (inner)
+  if (loadPct > 0.05) {
+    ctx.strokeStyle = loadPct > 0.85 ? `rgba(255,${Math.floor(80*(1-loadPct))},40,0.9)` : `rgba(240,192,64,0.7)`;
+    ctx.lineWidth = 2 / G.zoom;
+    ctx.beginPath();
+    ctx.arc(node.x, node.y, NR - 6/G.zoom, -Math.PI/2, -Math.PI/2 + Math.PI*2*loadPct);
+    ctx.stroke();
+  }
+
+  // Icon
+  ctx.shadowBlur = 0;
+  const fs = Math.floor(16 / G.zoom);
+  ctx.font = `${fs}px serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(def.icon, node.x, node.y - 3/G.zoom);
+
+  // Tier badge
+  if (node.tier > 1) {
+    ctx.font = `bold ${Math.floor(9/G.zoom)}px 'Exo 2',sans-serif`;
+    ctx.fillStyle = '#f0c040';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('T'+node.tier, node.x + 19/G.zoom, node.y - 19/G.zoom);
+  }
+
+  // Load count
+  if (node.load > 0) {
+    ctx.font = `bold ${Math.floor(10/G.zoom)}px 'Share Tech Mono',monospace`;
+    ctx.fillStyle = loadPct > 0.85 ? '#ff6060' : '#f0c040aa';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(node.load, node.x, node.y + 10/G.zoom);
+  }
+
+  // Label
+  ctx.font = `${Math.floor(8/G.zoom)}px 'Exo 2',sans-serif`;
+  ctx.fillStyle = '#90aac8';
+  ctx.textBaseline = 'top';
+  const nm = def.name.length > 14 ? def.name.slice(0,13)+'…' : def.name;
+  ctx.fillText(nm, node.x, node.y + NR + 5/G.zoom);
+
+  ctx.restore();
+}
+
+function hexA(hex, a) {
+  const r = parseInt(hex.slice(1,3),16), g2 = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+  return `rgba(${r},${g2},${b},${a})`;
+}
+function hpColor(p) {
+  if (p > 0.65) return '#3ddc84';
+  if (p > 0.35) return '#f0c040';
+  return '#e74c3c';
+}
+
+// ─── HUD UPDATE ─────────────────────────────────────────────────
+let _hudTimer = 0;
+function updateHUD() {
+  _hudTimer++;
+  const fast = _hudTimer % 2 === 0;
+  const slow = _hudTimer % 20 === 0;
+
+  // Top chips
+  const budgetEl = document.getElementById('hBudget');
+  budgetEl.textContent = '$' + Math.floor(G.budget);
+  budgetEl.className = 'cv' + (G.budget < 50 ? ' r' : G.budget < 200 ? ' y' : '');
+  const netPs = (G.totalIncome - G.totalUpkeep);
+  document.getElementById('hUpkeep').textContent = '$'+G.totalUpkeep.toFixed(1)+'/s';
+  const netEl = document.getElementById('hNet');
+  netEl.textContent = (netPs >= 0 ? '+' : '') + '$' + netPs.toFixed(1) + '/s';
+  netEl.className = 'cv ' + (netPs >= 0 ? 'g' : 'r');
+  const m = Math.floor(G.elapsed/60), s = Math.floor(G.elapsed%60);
+  document.getElementById('hTime').textContent = pad2(m)+':'+pad2(s);
+  const wi = G.mode === 'survival' ? (G.waveIdx+1) : '∞';
+  document.getElementById('hWave').textContent = G.mode === 'survival' ? wi + '/'+WAVES.length : '∞';
+  document.getElementById('hRps').textContent = (G.rps * G.surgeMultiplier).toFixed(1);
+  document.getElementById('hScore').textContent = G.score;
+
+  // Reputation
+  const rep = Math.max(0, G.reputation);
+  const repEl = document.getElementById('repPct');
+  repEl.textContent = rep.toFixed(1) + '%';
+  repEl.style.color = rep > 70 ? 'var(--green)' : rep > 40 ? 'var(--yellow)' : 'var(--red)';
+  document.getElementById('repFill').style.width = rep + '%';
+  document.getElementById('repFill').style.background = rep > 70 ? 'var(--green)' : rep > 40 ? 'var(--yellow)' : 'var(--red)';
+  const statuses = ['Excellent','Good','Degraded','Warning','Critical','FAILING!'];
+  const si = rep > 90 ? 0 : rep > 70 ? 1 : rep > 50 ? 2 : rep > 30 ? 3 : rep > 10 ? 4 : 5;
+  document.getElementById('repStatus').textContent = statuses[si];
+  const uptime = (rep * 0.999).toFixed(1) + '%';
+  document.getElementById('slaStatus').textContent = uptime;
+  document.getElementById('slaStatus').style.color = rep > 70 ? 'var(--green)' : 'var(--red)';
+
+  // Wave
+  if (G.mode === 'survival') {
+    const wave = WAVES[Math.min(G.waveIdx, WAVES.length-1)];
+    document.getElementById('waveNum').textContent = 'W' + (G.waveIdx+1);
+    document.getElementById('waveDesc').textContent = wave.label;
+    const wl = DIFFICULTIES[G.diff].waveLen;
+    const remaining = Math.max(0, wl - G.waveTimer);
+    const nextWave = WAVES[G.waveIdx+1];
+    document.getElementById('nextWave').textContent = nextWave ? `${Math.ceil(remaining)}s → ${nextWave.label}` : `${Math.ceil(remaining)}s → FINAL`;
+  }
+
+  // Traffic badges
+  if (fast) {
+    const live = {};
+    TTYPES.forEach(t => live[t] = 0);
+    G.packets.forEach(p => { if (!p.dropped) live[p.type] = (live[p.type]||0)+1; });
+    const total = Object.values(live).reduce((a,b)=>a+b,0);
+    document.getElementById('totalPkts').textContent = total + ' active';
+    document.getElementById('trafficBadges').innerHTML = TTYPES
+      .filter(t => live[t] > 0 || G.failures[t] > 0)
+      .map(t => `<span class="tbadge" style="color:${TCOLORS[t]};border-color:${TCOLORS[t]}44">${t}:${live[t]}</span>`)
+      .join('');
+
+    document.getElementById('surgeInfo').textContent =
+      G.surgeActive ? `×${G.surgeMultiplier.toFixed(1)} ACTIVE!` : `×1.0 (next: ${Math.ceil(G.surgeTimer)}s)`;
+    document.getElementById('surgeInfo').style.color = G.surgeActive ? 'var(--red)' : 'var(--yellow)';
+  }
+
+  // Failures
+  if (fast) {
+    const total = TTYPES.reduce((s,t) => s + G.failures[t], 0);
+    const ftEl = document.getElementById('failTotal');
+    ftEl.textContent = total;
+    ftEl.style.display = total > 0 ? '' : 'none';
+    document.getElementById('failRows').innerHTML = TTYPES
+      .filter(t => G.failures[t] > 0)
+      .map(t => `<div style="display:flex;justify-content:space-between;font-size:11px;padding:1px 3px">
+        <span style="color:${TCOLORS[t]}">${TLABELS[t]}</span>
+        <span style="font-family:'Share Tech Mono',monospace;color:var(--red)">${G.failures[t]}</span>
+        <span style="font-family:'Share Tech Mono',monospace;color:var(--dim)">${G.failRepLoss[t]}</span>
+      </div>`)
+      .join('') || '<div style="color:var(--dim);font-size:10px">No failures yet</div>';
+  }
+
+  // Health list
+  if (slow) {
+    if (G.nodes.length === 0) {
+      document.getElementById('healthList').innerHTML = '<div style="color:var(--dim);font-size:11px">No services placed</div>';
+    } else {
+      document.getElementById('healthList').innerHTML = G.nodes.map(n => {
+        const def = getDef(n);
+        const hp = Math.max(0, n.health);
+        const hc = hpColor(hp/100);
+        const repairCost = Math.max(5, Math.floor(def.cost * 0.12));
+        const btnHtml = hp < 95 ? `<button onclick="repairNode(G.nodes.find(function(nd){return nd.id===${n.id}}))" style="background:#0a1a08;border:1px solid #1a3a10;color:var(--green);border-radius:3px;padding:1px 5px;cursor:pointer;font-size:9px;flex-shrink:0">Fix $${repairCost}</button>` : '';
+        return `<div class="hitem">
+          <span style="font-size:11px">${def.icon}</span>
+          <div title="${def.name}" style="font-size:9px;color:var(--dim);min-width:50px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${def.name.length>10?def.name.slice(0,10)+'…':def.name}</div>
+          <div class="hbg"><div class="hfill" style="width:${hp}%;background:${hc}"></div></div>
+          <span style="font-size:9px;color:var(--dim);min-width:24px">${Math.floor(hp)}%</span>
+          ${btnHtml}
+        </div>`;
+      }).join('');
+    }
+  }
+
+  // Finances
+  if (slow) {
+    document.getElementById('fiIncome').textContent = '$' + Math.floor(G.incomeTotal);
+    document.getElementById('fiUpkeep').textContent = '$' + G.totalUpkeep.toFixed(2) + '/s';
+    const netPs = G.totalIncome - G.totalUpkeep;
+    const netFi = document.getElementById('fiNet');
+    netFi.textContent = (netPs >= 0 ? '+' : '') + '$' + netPs.toFixed(2) + '/s';
+    netFi.className = 'fv ' + (netPs >= 0 ? 'pos' : 'neg');
+    document.getElementById('fiNodes').textContent = G.nodes.length;
+    updateCostPanel();
+    updateSecurityPanel();
+  }
+
+  // Inspector (right panel)
+  if (slow && G.selNode) {
+    const node = G.nodes.find(n => n.id === G.selNode.id);
+    if (node) {
+      const def = getDef(node);
+      const cap = getCapacity(node);
+      const upCost = node.tier < 3 ? `$${getUpgradeCost(node)}` : 'MAX';
+      document.getElementById('inspectorContent').innerHTML = `
+        <div style="font-size:14px;font-weight:800;color:var(--o);margin-bottom:8px">${def.icon} ${def.name}</div>
+        <div style="font-size:10px;color:var(--dim);margin-bottom:8px;line-height:1.5">${def.desc}</div>
+        ${renderBar('Health', Math.floor(node.health), 100, hpColor(node.health/100))}
+        ${renderBar('Load', node.load, cap, node.load/cap > 0.8 ? 'var(--red)' : 'var(--blue)')}
+        <div style="height:6px"></div>
+        ${renderKV('Tier', `${node.tier}/3`)}
+        ${renderKV('Capacity', `${cap} RPS`)}
+        ${renderKV('Processed', node.processed)}
+        ${renderKV('Category', def.cat)}
+        ${renderKV('Upkeep', '$'+( def.upkeep * node.tier).toFixed(2)+'/s')}
+        ${def.upgradeable && node.tier < 3 ? `<button onclick="upgradeNode(G.nodes.find(function(n){return n.id===${node.id}}))" style="width:100%;margin-top:8px;background:var(--o);color:#000;border:none;border-radius:5px;padding:7px;cursor:pointer;font-weight:800;font-family:'Exo 2',sans-serif">⬆ Upgrade to T${node.tier+1} — ${upCost}</button>` : (node.tier >= 3 ? '<div style="color:var(--green);font-size:11px;margin-top:6px">⭐ MAX TIER</div>' : '')}
+        <button onclick="deleteNode(G.nodes.find(function(n){return n.id===${node.id}}))" style="width:100%;margin-top:5px;background:#1a0808;color:var(--red);border:1px solid #3a1010;border-radius:5px;padding:5px;cursor:pointer;font-weight:700;font-family:'Exo 2',sans-serif">🗑 Delete (refund 50%)</button>
+        <div style="margin-top:8px;font-size:10px;color:var(--dim)">Handles: ${def.handles.map(t=>`<span style="color:${TCOLORS[t]}">${t}</span>`).join(' ')}</div>
+        ${buildExamNote(def.id)}
+      `;
+    }
+  } else if (!G.selNode) {
+    document.getElementById('inspectorContent').innerHTML = '<div style="color:var(--dim);font-size:11px">Click a node to inspect</div>';
+  }
+
+  // Traffic mix bars (right panel)
+  if (slow) {
+    const live2 = {};
+    TTYPES.forEach(t => live2[t] = 0);
+    G.packets.forEach(p => { if (!p.dropped) live2[p.type] = (live2[p.type]||0)+1; });
+    const tot2 = Math.max(1, Object.values(live2).reduce((a,b)=>a+b,0));
+    document.getElementById('trafficMixBars').innerHTML = TTYPES.map(t => {
+      const pct = Math.round(live2[t] / tot2 * 100);
+      return `<div style="display:flex;align-items:center;gap:5px;margin-bottom:3px">
+        <span style="min-width:30px;font-size:9px;color:${TCOLORS[t]}">${t}</span>
+        <div style="flex:1;background:#050d18;border-radius:2px;height:5px;overflow:hidden">
+          <div style="width:${pct}%;height:100%;background:${TCOLORS[t]};border-radius:2px"></div>
+        </div>
+        <span style="min-width:28px;font-size:9px;color:var(--dim);text-align:right">${pct}%</span>
+      </div>`;
+    }).join('');
+  }
+
+  // Top nodes
+  if (slow) {
+    const sorted = [...G.nodes].sort((a,b)=>b.processed-a.processed).slice(0,5);
+    document.getElementById('topNodes').innerHTML = sorted.length === 0 ? '—' : sorted.map(n =>
+      `<div style="display:flex;justify-content:space-between;padding:1px 0;border-bottom:1px solid var(--border)">
+        <span>${getDef(n).icon} ${getDef(n).name.slice(0,12)}</span>
+        <span style="font-family:'Share Tech Mono',monospace;color:var(--o)">${n.processed}</span>
+      </div>`
+    ).join('');
+  }
+
+  // Achievements
+  if (slow) {
+    document.getElementById('achCount').textContent = G.achievements.size + '/' + ACHIEVEMENTS.length;
+    document.getElementById('achList').innerHTML = ACHIEVEMENTS.map(a => {
+      const done = G.achievements.has(a.id);
+      return `<div class="ach-item ${done?'unlocked':''}">
+        <span class="ach-icon">${a.icon}</span>
+        <div><div class="ach-name">${a.name}</div><div style="font-size:9px;color:var(--dim)">${a.desc}</div></div>
+      </div>`;
+    }).join('');
+  }
+}
+
+function renderBar(label, val, max, color) {
+  const pct = Math.min(val / max * 100, 100);
+  return `<div style="margin-bottom:6px">
+    <div style="display:flex;justify-content:space-between;font-size:10px;margin-bottom:2px">
+      <span style="color:var(--dim)">${label}</span>
+      <span style="font-family:'Share Tech Mono',monospace;color:#fff">${val}/${max}</span>
+    </div>
+    <div style="background:#050d18;border-radius:2px;height:6px;overflow:hidden">
+      <div style="width:${pct}%;height:100%;background:${color};border-radius:2px;transition:width .3s"></div>
+    </div>
+  </div>`;
+}
+function renderKV(k, v) {
+  return `<div style="display:flex;justify-content:space-between;font-size:11px;padding:2px 0;border-bottom:1px solid #0d1a28">
+    <span style="color:var(--dim)">${k}</span>
+    <span style="font-family:'Share Tech Mono',monospace;color:#fff">${v}</span>
+  </div>`;
+}
+function pad2(n) { return String(n).padStart(2,'0'); }
+
+// ─── QUIZ SYSTEM ─────────────────────────────────────────────────
+let quizCorrect = 0, quizAnswered = false, currentQuizWave = 0, currentQuizQ = null;
+let usedQuizzes = new Set();
+let quizStats = { SAA:0, SAP:0, SCS:0 };
+
+function maybeShowQuiz(waveNum) {
+  // Pick a random unused question for this wave (supports multiple questions per wave)
+  const candidates = QUIZ_QUESTIONS.filter(qq => qq.wave === waveNum && !usedQuizzes.has(qq));
+  if (!candidates.length) return;
+  const q = candidates[Math.floor(Math.random() * candidates.length)];
+  usedQuizzes.add(q);
+  currentQuizWave = waveNum;
+  currentQuizQ = q;
+  quizAnswered = false;
+  // Update exam tag label with colour-coded category
+  const tagEl = document.getElementById('quizTagLabel');
+  if (tagEl) {
+    const tagMap = { SAA:'📚 SAA-C03', SAP:'⚡ SAP-C02', SCS:'🔐 SCS-C02' };
+    const colMap = { SAA:'var(--blue)', SAP:'var(--yellow)', SCS:'var(--red)' };
+    tagEl.textContent = tagMap[q.exam] || '📚 AWS Exam';
+    tagEl.style.color = colMap[q.exam] || 'var(--o)';
+  }
+  document.getElementById('quizRew').textContent = `+$${q.reward} if correct`;
+  document.getElementById('quizQ').textContent = q.q;
+  document.getElementById('quizOpts').innerHTML = q.opts.map((o, i) =>
+    `<button class="qbtn" onclick="handleQuizAnswer(${i})">${String.fromCharCode(65+i)}. ${o}</button>`
+  ).join('');
+  const explEl = document.getElementById('quizExpl');
+  explEl.style.display = 'none'; explEl.innerHTML = '';
+  document.getElementById('quizCloseBtn').style.display = 'none';
+  document.getElementById('quizOverlay').style.display = 'block';
+  // Show scenario chip if available
+  const scenario = WAVE_SCENARIOS[waveNum];
+  if (scenario) {
+    const sc = document.getElementById('scenarioChip');
+    sc.textContent = scenario;
+    sc.style.display = 'block';
+    setTimeout(() => { sc.style.display = 'none'; }, 14000);
+  }
+}
+
+function handleQuizAnswer(idx) {
+  if (quizAnswered) return;
+  quizAnswered = true;
+  const q = currentQuizQ;
+  if (!q) { closeQuiz(); return; }
+  document.querySelectorAll('.qbtn').forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === q.ans) btn.classList.add('correct');
+    else if (i === idx) btn.classList.add('wrong');
+  });
+  const correct = idx === q.ans;
+  const explEl = document.getElementById('quizExpl');
+  explEl.innerHTML = (correct
+    ? '<span style="color:var(--green);font-weight:800">✅ Correct!</span> '
+    : `<span style="color:var(--red);font-weight:800">❌ Incorrect.</span> Correct: <span style="color:var(--green)">${q.opts[q.ans]}</span><br>`) + q.expl;
+  explEl.style.display = 'block';
+  document.getElementById('quizCloseBtn').style.display = 'block';
+  if (correct) {
+    quizCorrect++;
+    if (q.exam && quizStats[q.exam] !== undefined) quizStats[q.exam]++;
+    G.budget += q.reward;
+    G.score += q.reward * 2;
+    showToast(`🎓 Correct! +$${q.reward} budget bonus`);
+    document.getElementById('quizScoreVal').textContent = quizCorrect;
+    document.getElementById('quizScoreChip').style.display = 'block';
+    if (quizCorrect >= 10) checkAch('quiz_ace');
+  } else {
+    showToast('📖 Study tip added to panel');
+  }
+}
+
+function closeQuiz() {
+  document.getElementById('quizOverlay').style.display = 'none';
+}
+
+// ─── SECURITY SCORE ───────────────────────────────────────────────
+function getSecurityScore() {
+  const ids = new Set(G.nodes.map(n => n.defId));
+  let score = 0;
+  const results = COMPLIANCE_CHECKS.map(c => {
+    const pass = c.svc.some(s => ids.has(s));
+    if (pass) score += Math.floor(100 / COMPLIANCE_CHECKS.length);
+    return { ...c, pass };
+  });
+  return { score: Math.min(100, score), results };
+}
+
+function updateSecurityPanel() {
+  const { score, results } = getSecurityScore();
+  document.getElementById('secScore').textContent = score;
+  const fill = document.getElementById('secFill');
+  fill.style.width = score + '%';
+  fill.style.background = score >= 75 ? 'var(--green)' : score >= 40 ? 'var(--yellow)' : 'var(--red)';
+  const secLabels = ['No security services','Basic coverage','Moderate security','Good posture','Strong security','Perfect Posture 🔒'];
+  const li = score >= 100 ? 5 : score >= 80 ? 4 : score >= 60 ? 3 : score >= 40 ? 2 : score >= 13 ? 1 : 0;
+  document.getElementById('secLabel').textContent = secLabels[li];
+  if (score >= 100 && G.running) checkAch('security_100');
+  document.getElementById('secChecks').innerHTML = results.map(c =>
+    `<div class="sec-chk">
+      <div class="sc-dot ${c.pass ? 'sc-pass' : ''}"></div>
+      <span style="color:${c.pass ? 'var(--green)' : 'var(--dim)'}">${c.label}</span>
+      <span style="margin-left:auto;font-size:9px;color:var(--dim)">${c.standard}</span>
+    </div>`
+  ).join('');
+}
+
+// ─── COST ANALYSIS ────────────────────────────────────────────────
+function calcMonthlyCost() {
+  return G.nodes.reduce((t, n) => {
+    const ex = SEXAM[n.defId];
+    return t + (ex ? ex.monthly * n.tier : 0);
+  }, 0);
+}
+
+function updateCostPanel() {
+  const monthly = calcMonthlyCost();
+  const sorted = [...G.nodes]
+    .filter(n => SEXAM[n.defId])
+    .sort((a, b) => (SEXAM[b.defId].monthly * b.tier) - (SEXAM[a.defId].monthly * a.tier))
+    .slice(0, 6);
+  document.getElementById('costList').innerHTML = sorted.length === 0
+    ? '<div style="color:var(--dim);font-size:10px">No services placed</div>'
+    : sorted.map(n => {
+        const cost = SEXAM[n.defId].monthly * n.tier;
+        return `<div class="pr-row"><span class="pr-n">${getDef(n).icon} ${getDef(n).name}${n.tier > 1 ? ' T'+n.tier : ''}</span><span class="pr-c">$${cost}/mo</span></div>`;
+      }).join('');
+  document.getElementById('costTotal').textContent = `$${Math.round(monthly)}/mo`;
+  const [cls, lbl] = monthly < 200 ? ['cg-g','OPTIMAL'] : monthly < 600 ? ['cg-y','MODERATE'] : ['cg-r','HIGH COST'];
+  const gradeEl = document.getElementById('costGrade');
+  gradeEl.className = `cg ${cls}`;
+  gradeEl.textContent = lbl;
+}
+
+// ─── EXAM NOTE for inspector ──────────────────────────────────────
+function buildExamNote(defId) {
+  const ex = SEXAM[defId];
+  if (!ex) return '';
+  return `<div class="exam-box">
+    <div class="eb-title">📚 Exam Notes</div>
+    <div class="eb-when"><b>✅ Use when:</b> ${ex.whenToUse}</div>
+    <div class="eb-anti"><b>⚠ Anti-pattern:</b> ${ex.antiPattern}</div>
+    <div class="eb-cost"><b>💰 Pricing:</b> ${ex.costNote}</div>
+  </div>`;
+}
+
+// ─── GAME FLOW ──────────────────────────────────────────────────
+function startGame(mode) {
+  document.getElementById('mainMenu').style.display = 'none';
+  document.getElementById('gameOverScreen').style.display = 'none';
+  initState(mode);
+  G.running = true;
+  G.mode = mode;
+  document.getElementById('modechip').textContent = mode === 'sandbox' ? 'SANDBOX' : `SURVIVAL · ${DIFFICULTIES[DIFF].label.toUpperCase()}`;
+  document.getElementById('sbctrl').style.display = mode === 'sandbox' ? 'block' : 'none';
+  if (mode === 'survival') {
+    announceWave(WAVES[0]);
+  } else {
+    showEvent('🧪 Sandbox mode — unlimited budget, no game over');
+    recalcUpkeep();
+    updateHUD();
+  }
+  lastTs = performance.now();
+  if (animId) cancelAnimationFrame(animId);
+  requestAnimationFrame(gameLoop);
+  buildRegionBadges();
+  // Reset quiz state
+  quizCorrect = 0; quizAnswered = false; currentQuizWave = 0; currentQuizQ = null;
+  usedQuizzes = new Set();
+  quizStats = { SAA:0, SAP:0, SCS:0 };
+  closeQuiz();
+  document.getElementById('quizScoreChip').style.display = 'none';
+  document.getElementById('quizScoreVal').textContent = '0';
+  document.getElementById('scenarioChip').style.display = 'none';
+}
+
+function togglePause() {
+  G.paused = !G.paused;
+  document.getElementById('pauseBtn').textContent = G.paused ? '▶ Resume' : '⏸ Pause';
+  document.getElementById('pauseBtn').classList.toggle('act', G.paused);
+  if (!G.paused) lastTs = performance.now();
+}
+
+function announceWave(wave) {
+  document.getElementById('waBanner').textContent = wave.n <= 3 ? '⚡' : wave.n <= 6 ? '🔥' : wave.n <= 9 ? '💀' : wave.n <= 12 ? '☠' : wave.n <= 14 ? '🔐' : '☢';
+  document.getElementById('waTitle').textContent = `Wave ${wave.n}`;
+  document.getElementById('waSubtitle').textContent = wave.label;
+  document.getElementById('waDesc').textContent = wave.desc;
+  document.getElementById('waveAnnounce').style.display = 'flex';
+  G.paused = true;
+  document.getElementById('pauseBtn').textContent = '▶ Resume';
+}
+
+function dismissWave() {
+  document.getElementById('waveAnnounce').style.display = 'none';
+  G.paused = false;
+  document.getElementById('pauseBtn').textContent = '⏸ Pause';
+  lastTs = performance.now();
+  if (G.mode === 'survival') maybeShowQuiz(G.waveIdx + 1);
+}
+
+function triggerGameOver(reason, win = false) {
+  G.gameOver = true; G.running = false;
+  document.getElementById('goEmoji').textContent = win ? '🏆' : '💥';
+  document.getElementById('goTitle').textContent = win ? 'Cloud Champion!' : 'Infrastructure Down';
+  document.getElementById('goReason').textContent = reason;
+  document.getElementById('goScore').textContent = G.score;
+  const m = Math.floor(G.elapsed/60), s = Math.floor(G.elapsed%60);
+  document.getElementById('scoreTable').innerHTML = `
+    <tr><td>Time Survived</td><td>${pad2(m)}:${pad2(s)}</td></tr>
+    <tr><td>Waves Completed</td><td>${G.waveIdx}</td></tr>
+    <tr><td>Requests Processed</td><td>${G.totalProcessed}</td></tr>
+    <tr><td>DDoS Blocked</td><td>${G.attacksBlocked}</td></tr>
+    <tr><td>Total Income</td><td>$${Math.floor(G.incomeTotal)}</td></tr>
+    <tr><td>Achievements</td><td>${G.achievements.size}/${ACHIEVEMENTS.length}</td></tr>
+    <tr><td>Final Reputation</td><td>${Math.floor(G.reputation)}%</td></tr>
+    <tr><td>Quiz Correct</td><td>${quizCorrect} (SAA:${quizStats.SAA} SAP:${quizStats.SAP} SCS:${quizStats.SCS})</td></tr>
+  `;
+  document.getElementById('gameOverScreen').style.display = 'flex';
+}
+
+function restartGame() {
+  document.getElementById('gameOverScreen').style.display = 'none';
+  startGame(G.mode);
+}
+function returnMenu() {
+  document.getElementById('gameOverScreen').style.display = 'none';
+  document.getElementById('mainMenu').style.display = 'flex';
+}
+
+// ─── TOOLS ─────────────────────────────────────────────────────
+let selSvc = null;
+
+function setTool(tool) {
+  G.tool = tool;
+  G.conSrc = null;
+  ['Sel','Con','Unl','Del'].forEach(t => document.getElementById('t'+t).classList.remove('act'));
+  const map = {select:'Sel', connect:'Con', unlink:'Unl', delete:'Del'};
+  if (map[tool]) document.getElementById('t'+map[tool]).classList.add('act');
+  if (tool !== 'select') {
+    selSvc = null;
+    document.querySelectorAll('.scard').forEach(c => c.classList.remove('sel'));
+  }
+  canvas.style.cursor = tool === 'delete' ? 'not-allowed' : tool === 'connect' ? 'crosshair' : 'default';
+}
+
+function pickService(defId) {
+  const def = SDEFS.find(d => d.id === defId);
+  if (!def) return;
+  selSvc = defId;
+  G.tool = 'select';
+  ['Sel','Con','Unl','Del'].forEach(t => document.getElementById('t'+t).classList.remove('act'));
+  document.getElementById('tSel').classList.add('act');
+  document.querySelectorAll('.scard').forEach(c => c.classList.remove('sel'));
+  document.querySelector(`[data-svc="${defId}"]`)?.classList.add('sel');
+  // Update tip
+  document.getElementById('tipBox').innerHTML = `💡 <b style="color:var(--o)">${def.name}</b>: ${def.desc}`;
+}
+
+// ─── CANVAS INPUT ────────────────────────────────────────────────
+function worldXY(ex, ey) {
+  const rect = canvas.getBoundingClientRect();
+  return {
+    x: (ex - rect.left - G.panX) / G.zoom,
+    y: (ey - rect.top  - G.panY) / G.zoom,
+  };
+}
+function screenXY(wx, wy) {
+  return { x: wx * G.zoom + G.panX, y: wy * G.zoom + G.panY };
+}
+
+function nodeAt(wx, wy) {
+  return G.nodes.slice().reverse().find(n => {
+    const d = Math.hypot(n.x-wx, n.y-wy);
+    return d <= NR + 6/G.zoom;
+  }) || null;
+}
+function linkAt(wx, wy) {
+  return G.links.find(link => {
+    const a = G.nodes.find(n=>n.id===link.from);
+    const b = G.nodes.find(n=>n.id===link.to);
+    if (!a||!b) return false;
+    const dx=b.x-a.x, dy=b.y-a.y, len2=dx*dx+dy*dy;
+    if (len2===0) return false;
+    const t=Math.max(0,Math.min(1,((wx-a.x)*dx+(wy-a.y)*dy)/len2));
+    return Math.hypot(a.x+t*dx-wx, a.y+t*dy-wy) < 10/G.zoom;
+  }) || null;
+}
+
+canvas.addEventListener('mousedown', e => {
+  if (!G.running && !G.gameOver) return;
+  const { x: wx, y: wy } = worldXY(e.clientX, e.clientY);
+
+  if (e.button === 1 || (e.button === 0 && e.altKey)) {
+    // Pan start
+    G.isPanning = true;
+    G.panStartX = e.clientX - G.panX;
+    G.panStartY = e.clientY - G.panY;
+    canvas.style.cursor = 'grabbing';
+    return;
+  }
+
+  const node = nodeAt(wx, wy);
+
+  if (G.tool === 'select') {
+    if (selSvc && !node) {
+      // Place
+      createNode(selSvc, wx, wy);
+      if (!e.shiftKey) {
+        selSvc = null;
+        document.querySelectorAll('.scard').forEach(c => c.classList.remove('sel'));
+      }
+    } else if (node) {
+      G.selNode = node;
+      G.dragging = node;
+      G.dragOX = wx - node.x;
+      G.dragOY = wy - node.y;
+      updateInspector(node);
+    } else {
+      G.selNode = null;
+    }
+  } else if (G.tool === 'connect') {
+    if (node) {
+      if (!G.conSrc) { G.conSrc = node.id; }
+      else { addLink(G.conSrc, node.id); G.conSrc = null; }
+    }
+  } else if (G.tool === 'unlink') {
+    const link = linkAt(wx, wy);
+    if (link) removeLink(link);
+  } else if (G.tool === 'delete') {
+    if (node) deleteNode(node);
+  }
+});
+
+canvas.addEventListener('mousemove', e => {
+  const rect = canvas.getBoundingClientRect();
+  G.mouseX = e.clientX - rect.left;
+  G.mouseY = e.clientY - rect.top;
+
+  if (G.isPanning) {
+    G.panX = e.clientX - G.panStartX;
+    G.panY = e.clientY - G.panStartY;
+    return;
+  }
+
+  const { x: wx, y: wy } = worldXY(e.clientX, e.clientY);
+
+  if (G.dragging) {
+    G.dragging.x = wx - G.dragOX;
+    G.dragging.y = wy - G.dragOY;
+    return;
+  }
+
+  G.hoverNode = nodeAt(wx, wy);
+  G.hoverLink = G.tool === 'unlink' ? linkAt(wx, wy) : null;
+
+  if (G.hoverNode) {
+    canvas.style.cursor = G.tool === 'delete' ? 'not-allowed' : 'pointer';
+    showInfoPanel(G.hoverNode, e.clientX, e.clientY);
+  } else {
+    if (G.tool !== 'delete') canvas.style.cursor = selSvc ? 'crosshair' : 'default';
+    hideInfoPanel();
+  }
+});
+
+canvas.addEventListener('mouseup', e => {
+  G.dragging = null;
+  if (G.isPanning) { G.isPanning = false; canvas.style.cursor = 'default'; }
+});
+canvas.addEventListener('mouseleave', () => { G.dragging = null; G.hoverNode = null; G.isPanning = false; hideInfoPanel(); });
+canvas.addEventListener('wheel', e => {
+  e.preventDefault();
+  const delta = e.deltaY > 0 ? 0.9 : 1.11;
+  const rect = canvas.getBoundingClientRect();
+  const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+  G.panX = mx - (mx - G.panX) * delta;
+  G.panY = my - (my - G.panY) * delta;
+  G.zoom = Math.max(0.3, Math.min(3, G.zoom * delta));
+}, { passive: false });
+
+function zoomIn() { G.zoom = Math.min(3, G.zoom * 1.2); }
+function zoomOut() { G.zoom = Math.max(0.3, G.zoom * 0.83); }
+function resetView() { G.zoom = 1; G.panX = 0; G.panY = 0; }
+
+function showInfoPanel(node, ex, ey) {
+  const def = getDef(node);
+  const ip = document.getElementById('infopanel');
+  ip.innerHTML = `
+    <div class="iname">${def.icon} ${def.name}</div>
+    <div class="irow"><span class="il">Health</span><span class="iv">${Math.floor(node.health)}%</span></div>
+    <div class="irow"><span class="il">Load</span><span class="iv">${node.load} / ${getCapacity(node)}</span></div>
+    <div class="irow"><span class="il">Tier</span><span class="iv">${node.tier}/3</span></div>
+    <div class="irow"><span class="il">Processed</span><span class="iv">${node.processed}</span></div>
+    <div class="idesc">${def.desc}</div>
+  `;
+  ip.style.display = 'block';
+}
+function hideInfoPanel() { document.getElementById('infopanel').style.display = 'none'; }
+function updateInspector(node) { G.selNode = node; }
+
+// ─── ACHIEVEMENTS ───────────────────────────────────────────────
+function checkAch(id) {
+  if (G.achievements.has(id)) return;
+  G.achievements.add(id);
+  const a = ACHIEVEMENTS.find(x => x.id === id);
+  if (!a) return;
+  showToast(`🏆 Achievement: ${a.name}!`);
+  logEvent(`🏆 ${a.name}: ${a.desc}`);
+  G.score += 500;
+  G.milestones.push({ text: `${a.icon} ${a.name}`, time: G.elapsed });
+  updateMilestones();
+}
+function updateMilestones() {
+  const el = document.getElementById('milestoneList');
+  const recent = G.milestones.slice(-6).reverse();
+  el.innerHTML = recent.length === 0 ? 'None yet' : recent.map(m => {
+    const t = Math.floor(m.time);
+    return `<div style="padding:2px 0;border-bottom:1px solid var(--border)"><span style="color:var(--yellow)">${m.text}</span> <span style="color:var(--dim);font-size:9px">at ${pad2(Math.floor(t/60))}:${pad2(t%60)}</span></div>`;
+  }).join('');
+}
+
+// ─── UI HELPERS ─────────────────────────────────────────────────
+let evTimeout, toastTimeout;
+function showEvent(msg) {
+  const el = document.getElementById('evbanner');
+  el.textContent = msg; el.style.display = 'block';
+  clearTimeout(evTimeout);
+  evTimeout = setTimeout(() => el.style.display = 'none', 4000);
+}
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.style.display = 'block';
+  clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(() => el.style.display = 'none', 2500);
+}
+function flashBudget() {
+  const el = document.getElementById('hBudget');
+  const orig = el.style.color;
+  el.style.color = 'var(--red)';
+  setTimeout(() => el.style.color = orig, 700);
+}
+function logEvent(msg) {
+  const m = Math.floor((G.elapsed||0)/60), s = Math.floor((G.elapsed||0)%60);
+  G.eventLog.unshift(`[${pad2(m)}:${pad2(s)}] ${msg}`);
+  if (G.eventLog.length > 50) G.eventLog.pop();
+  const el = document.getElementById('eventLog');
+  el.innerHTML = G.eventLog.slice(0,20).map(l => `<div>${l}</div>`).join('');
+}
+function toggleAutoRepair() {
+  G.autoRepair = !G.autoRepair;
+  document.getElementById('arToggle').textContent = `⚙ Auto-Repair: ${G.autoRepair ? 'ON' : 'OFF'}`;
+  document.getElementById('arToggle').style.color = G.autoRepair ? 'var(--green)' : 'var(--blue)';
+  showToast(`Auto-Repair: ${G.autoRepair ? 'ENABLED' : 'DISABLED'}`);
+}
+
+// ─── SAVE / LOAD ────────────────────────────────────────────────
+function saveGame() {
+  if (!G.running && !G.gameOver) { showToast('Start a game first!'); return; }
+  const data = {
+    v:2, mode:G.mode, diff:G.diff, budget:G.budget, reputation:G.reputation,
+    elapsed:G.elapsed, score:G.score, waveIdx:G.waveIdx, waveTimer:G.waveTimer,
+    incomeTotal:G.incomeTotal, totalProcessed:G.totalProcessed, attacksBlocked:G.attacksBlocked,
+    nodes:G.nodes.map(n=>({id:n.id,defId:n.defId,x:n.x,y:n.y,health:n.health,tier:n.tier,processed:n.processed||0})),
+    links:G.links.map(l=>({from:l.from,to:l.to})),
+    nid:G.nid, achievements:[...G.achievements], routedTypes:[...G.routedTypes],
+    zoom:G.zoom, panX:G.panX, panY:G.panY,
+  };
+  localStorage.setItem('aws-cs-v2', JSON.stringify(data));
+  showToast('✅ Game saved!');
+  logEvent('Game saved');
+}
+function loadGame() {
+  const raw = localStorage.getItem('aws-cs-v2');
+  if (!raw) { showToast('No save found!'); return; }
+  try {
+    const data = JSON.parse(raw);
+    document.getElementById('mainMenu').style.display = 'none';
+    initState(data.mode || 'survival');
+    G.diff = data.diff || 'normal'; DIFF = G.diff;
+    G.budget = data.budget; G.reputation = data.reputation;
+    G.elapsed = data.elapsed; G.score = data.score;
+    G.waveIdx = data.waveIdx || 0; G.waveTimer = data.waveTimer || 0;
+    G.incomeTotal = data.incomeTotal || 0; G.totalProcessed = data.totalProcessed || 0;
+    G.attacksBlocked = data.attacksBlocked || 0;
+    G.nid = data.nid || 0;
+    G.nodes = data.nodes.map(n => ({...n, load:0, pulseT: Math.random()*Math.PI*2, lastDmgTime:0, processed: n.processed || 0}));
+    G.links = data.links.map(l => ({...l, flowPulse:0}));
+    G.achievements = new Set(data.achievements || []);
+    G.routedTypes = new Set(data.routedTypes || []);
+    G.zoom = data.zoom || 1; G.panX = data.panX || 0; G.panY = data.panY || 0;
+    G.running = true;
+    recalcUpkeep();
+    document.getElementById('modechip').textContent = G.mode === 'sandbox' ? 'SANDBOX' : `SURVIVAL · ${DIFFICULTIES[G.diff].label.toUpperCase()}`;
+    document.getElementById('sbctrl').style.display = G.mode === 'sandbox' ? 'block' : 'none';
+    lastTs = performance.now();
+    if (animId) cancelAnimationFrame(animId);
+    requestAnimationFrame(gameLoop);
+    showToast('📂 Game loaded!');
+    logEvent('Game loaded');
+    buildRegionBadges();
+  } catch(e) { showToast('❌ Load failed: ' + e.message); }
+}
+
+// ─── SANDBOX CONTROLS ────────────────────────────────────────────
+document.getElementById('sbRps').addEventListener('input', function() {
+  document.getElementById('sbRpsVal').textContent = this.value;
+});
+document.getElementById('sbMix').addEventListener('change', function() {
+  if (G.mode === 'sandbox') G.sbMix = this.value;
+});
+document.getElementById('sbUpkeep').addEventListener('change', function() {
+  if (G.mode === 'sandbox') G.upkeepEnabled = this.checked;
+});
+function setSbBudget() { G.budget = parseFloat(document.getElementById('sbBudget').value) || 9999; }
+function clearAll() {
+  G.nodes = []; G.links = []; G.packets = [];
+  G.selNode = null; G.conSrc = null;
+  recalcUpkeep(); showToast('🗑 Canvas cleared');
+}
+
+// ─── REGION BADGES ────────────────────────────────────────────────
+const REGIONS = ['us-east-1','us-west-2','eu-west-1','ap-southeast-1','ap-northeast-1'];
+function buildRegionBadges() {
+  document.getElementById('regionBadges').innerHTML = REGIONS.map(r =>
+    `<span class="region-badge ${r===(G.region||'us-east-1')?'active':''}" onclick="setRegion('${r}')">${r}</span>`
+  ).join('');
+}
+function setRegion(r) {
+  G.region = r;
+  buildRegionBadges();
+  showToast(`Region: ${r}`);
+}
+buildRegionBadges();
+
+// ─── PALETTE ─────────────────────────────────────────────────────
+let activeCat = 'security';
+function buildCatTabs() {
+  document.getElementById('cat-tabs').innerHTML = CATEGORIES.map(c =>
+    `<button class="cat-tab ${c.id===activeCat?'act':''}" onclick="setCat('${c.id}')">${c.label}</button>`
+  ).join('');
+}
+function setCat(cat) {
+  activeCat = cat;
+  buildCatTabs();
+  buildPalette();
+}
+function buildPalette() {
+  const defs = SDEFS.filter(d => d.cat === activeCat);
+  document.getElementById('svc-palette').innerHTML = defs.map(def =>
+    `<div class="scard" data-svc="${def.id}" onclick="pickService('${def.id}')" title="${def.desc}">
+      <div class="si">${def.icon}</div>
+      <div class="sn">${def.name}</div>
+      <div class="sc">$${def.cost}</div>
+      <div class="su">$${def.upkeep}/s upkeep</div>
+    </div>`
+  ).join('');
+}
+buildCatTabs(); buildPalette();
+
+// ─── HELP ────────────────────────────────────────────────────────
+function openHelp() { document.getElementById('helpModal').style.display = 'flex'; }
+function closeHelp() { document.getElementById('helpModal').style.display = 'none'; }
+
+// ─── KEYBOARD ────────────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT') return;
+  if (e.key === 's') setTool('select');
+  if (e.key === 'c') setTool('connect');
+  if (e.key === 'd') setTool('delete');
+  if (e.key === 'u') setTool('unlink');
+  if (e.key === ' ') { e.preventDefault(); if (G.running) togglePause(); }
+  if (e.key === 'r') resetView();
+  if (e.key === 'Escape') {
+    G.conSrc = null; selSvc = null;
+    document.querySelectorAll('.scard').forEach(c => c.classList.remove('sel'));
+    if (document.getElementById('helpModal').style.display !== 'none') closeHelp();
+    if (document.getElementById('waveAnnounce').style.display !== 'none') dismissWave();
+  }
+  if (e.key === '+' || e.key === '=') zoomIn();
+  if (e.key === '-') zoomOut();
+});
+
+// ─── INITIAL RENDER ───────────────────────────────────────────────
+requestAnimationFrame(gameLoop);
+</script>
+</body>
+</html>
